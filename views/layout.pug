@@ -1,0 +1,17 @@
+doctype html
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/static/stylesheets/foundation.css')
+    link(rel='stylesheet', href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/default.min.css')
+    link(rel='stylesheet', href='/static/stylesheets/app.css')
+  body
+    header(class="row small-centered small-8 end")
+      block header
+    div(class="row small-centered small-8 end")
+      block content
+    script(src="/static/javascripts/vendor/jquery.js")
+    script(src="/static/javascripts/vendor/what-input.js")
+    script(src="/static/javascripts/vendor/foundation.js")
+    script(src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/highlight.min.js")
+    script(src="/static/javascripts/app.js")

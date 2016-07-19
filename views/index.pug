@@ -1,0 +1,99 @@
+extends layout
+
+block header
+  h2 Course page for: 
+    strong Mobile Applications
+
+block content
+  section(class="column small-12")
+    h2 About the course
+    p.
+      This course aims to give the student knowledge about the Android platform, the tools for developing
+      applications (apps) for this platform as well as how take advantage of the capabilities of Android devices,
+      such as sensors and cameras.
+    p.
+      Furthermore, we will take a look at designing and implementing user interfaces when working on a platform
+      with vast difference between device screens.
+    h4 About the lecturer
+    p.
+      My name is Lukas Jørgensen, I'm a 22 years old Computer Science master-student from Aarhus University. Feel free to
+      contact me at: #[a(href="mailto:lpjoergensen@gmail.com") lpjoergensen@gmail.com], if you have any questions
+      or issues.
+  section(class="column small-12")
+    h2 Course plan
+    table
+      thead
+        tr
+          th Weekday
+          th Subjects
+          th Literature
+          th Exercises
+      tbody
+        tr
+          td Monday (#[a(href="slides/day-1") slides])
+          td Introduction to the course, tools and Android
+          td Chapter 1, #[a(href="notes/day-1") notes]
+          td
+  section(class="column small-12")
+    h2 Project
+    p.
+      You should form groups of two to three people for the project. The project is open, and you are free to form
+      the scope of the project, as long as your project complies with the minimum specifications.
+    p.
+      The minimum requirements, i.e. the requirements to receive the minimum #[em passed] grade (02) are the
+      following:
+    ul
+      li You must create an Android app.
+      li The app must run on Android 4.4 and above.
+      li The app must support both #[em phones] and #[em tablets] of different resolutions.
+      li The app must use a range of advanced technology #[em (minimum 2)] in a meaningful way, these technologies could be:
+        ul
+          li Sensors.
+          li Camera.
+          li GPS.
+          li Maps.
+          li Services.
+    p.
+      You will develop the project in groups, and we will have a round of presentations around the end of the
+      course, where you will get to show-off what you have made.
+  // TODO: Grading, individual reports or individual exams?
+  section(class="column small-12")
+    h2 Course Evaluation
+    p.
+      All students will be graded according to the Danish grading scale. The grade given will be based on the
+      student’s work during all three weeks as well as the final project and presentation.
+    table
+      thead
+        tr
+          th Danish mark
+          th Explanation of the mark
+          th Equivalent ECTS mark
+      tbody
+        tr
+          td 12
+          td For an excellent performance
+          td A
+        tr
+          td 10
+          td For a very good performance
+          td B
+        tr
+          td 7
+          td For a good performance
+          td C
+        tr
+          td 4
+          td For a fair performance
+          td D
+        tr
+          td 02
+          td For an adequate performance
+          td E
+        tr
+          td 00
+          td For an inadequate performance
+          td Fx
+        tr
+          td -3
+          td For an unacceptable performance
+          td F

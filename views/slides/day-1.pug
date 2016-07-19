@@ -1,0 +1,104 @@
+extends layout
+
+block content
+  section
+    h2 Introduction to Mobile Applications
+    i Day 1
+  section
+    h2 Agenda
+    ul
+      li Mobile vs Desktop application requirements
+      li Benefits and pitfalls of Android
+      li Anatomy of an app
+      li Android Studio
+      li Size measures
+      li Exercises
+  section
+    h2 Mobile vs Desktop
+    ul
+      li Touch instead of keyboards
+      li Small screens &rarr; more scrolling and navigating the apps
+      li Vast difference in screens (density, format, size)
+      li More limitations on performance, memory and bandwidth
+      li Mobile applications are very prone to interruptions (messages, phone calls, some one talking to the
+        | user etc.)
+      li Limited battery power
+      li Unstable network
+  section
+    section
+      h2 Android for developers
+      ul
+        li Open platform, registering as a developer is free and easy. Anyone can become a developer!
+        li It's easy to release an app (small approval process)
+        li There are small limitations of what an app can do
+        li You can run services in the background
+        li All apps are equal, native apps does not have bigger priority
+        li Many different platforms to target
+    section
+      h2 Android for users
+      ul
+        li Anyone can become a developer..
+        li It's easy to release an app..
+        li There are small limitations of what an app can do..
+        li You can run services in the background..
+        li All apps are equal..
+        li Apps may not work properly (or even at all) on your device..
+  section
+    section
+      h2 Anatomy of an app
+      dl
+        dt Manifest
+        dd Contains information about the app, which the Android system needs
+        dt Resources
+        dd Layouts, Strings, Graphics. Separated from application code
+        dt Activities
+        dd 
+          | App "pages". E.g. a settings-activity, map-activity, photo-activity. 
+          | Essentially different actions a user can take within an app
+    section
+      h2 The manifest
+      ul
+        li What permissions does the app need
+        li What technologies does the app need
+        li What messages (intents) the app can receive
+    section
+      h2 Resources
+      ul
+        li Stored in the #[i res/] folder
+        li Graphics stored in #[i res/drawable], and then accessed via R.drawable
+      pre
+        code(class="xml").
+          &lt;?xml version="1.0" encoding="utf-8"?&gt;
+          &lt;resources&gt;
+              &lt;string
+                  name="hello"
+                  &gt;text_string&lt;/string&gt;
+          &lt;/resources&gt;
+      span Can be accessed with
+      pre
+        code(class="java") String string = getString(R.string.hello);
+    section
+      h2 Activities
+      p.
+        Provides a screen with which users can interact in order to do something. 
+        Such as dial the phone, taking a photo etc.
+      p.
+        Each activity is given a window, that can either float on top of other windows
+        or fill the entire screen.
+  section
+    h2 Layouts
+    p.
+      There a lot of layout types, and they often change.
+    ul
+      li
+        
+    // Why did we choose Android? - Open, easy to access
+    // What makes an app?
+    // Android Studio
+    // How to transfer an app from Android Studio to an Android Device
+    // Size measures: dp, sp, pt, px, mm, in
+    // https://material.google.com/layout/units-measurements.html#units-measurements-designing-layouts-for-dp
+    // Exercise: Install Android Studio, and transfer an app to a device (or simulator).
+    // Exercise: Create a small app with a background image and 4 small images in the center, that handles orientation.
+    // (perhaps, in all different types of layout)
+      

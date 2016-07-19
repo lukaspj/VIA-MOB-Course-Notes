@@ -1,0 +1,55 @@
+doctype html
+html
+  head
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no")
+    
+    title= title
+    link(rel='stylesheet', href='/static/stylesheets/slides/reveal.css')
+    link(rel='stylesheet', href='/static/stylesheets/slides/theme/serif.css')
+    link(rel='stylesheet', href='/static/stylesheets/highlight/railscasts.css')
+    
+    script.
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match(/print-pdf/gi)
+              ? '/static/stylesheets/slides/print/pdf.css'
+              : '/static/stylesheets/slides/print/paper.css';
+      document.getElementsByTagName('head')[0].appendChild(link);
+  body
+    div.reveal
+      div.slides
+        block content
+
+script(src="/static/javascripts/vendor/head.min.js")
+script(src="/static/javascripts/vendor/reveal.js")
+
+script.
+  // More info https://github.com/hakimel/reveal.js#configuration
+  Reveal.initialize({
+    history: true,
+
+    // Transition style
+    transition: 'default', // none/fade/slide/convex/concave/zoom
+
+    // Transition speed
+    transitionSpeed: 'default', // default/fast/slow
+
+    // Transition style for full page slide backgrounds
+    backgroundTransition: 'default', // none/fade/slide/convex/concave/zoom
+
+    // More info https://github.com/hakimel/reveal.js#dependencies
+    dependencies: [
+      {src: '/static/javascripts/vendor/markdown/marked.js'},
+      {src: '/static/javascripts/vendor/markdown/markdown.js'},
+      {src: '/static/javascripts/vendor/notes/notes.js', async: true},
+      {
+        src: '/static/javascripts/vendor/highlight/highlight.js',
+        async: true,
+        callback: function () {
+          hljs.initHighlightingOnLoad();
+        }
+      }
+    ]
+  });

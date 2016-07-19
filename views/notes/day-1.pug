@@ -1,0 +1,272 @@
+extends layout
+
+block header
+  h2 Course page for: #[strong Mobile Applications]
+  
+block content
+  section.column.small-12
+    h2 Lecture notes: day 1
+    h3 Android Studio
+    p. 
+      #[strong *Mandatory exercise*]: You should install Android Studio on your development 
+      computers. You can get it from #[a(href="https://developer.android.com/studio/index.html") here]. 
+      It is cross platform and should work on all operating systems. 
+    p.
+      Android Studio comes with an emulator, but you get a better experience if you run 
+      your apps on an Android device. Before you can transfer your apps to your android
+      device, you have to enable USB debugging on the device. Read a full guide 
+      #[a(href="https://developer.android.com/studio/run/device.html") here].
+    h3 Anatomy of an app
+    p.
+      The main components that make up an app are the #[em App Manifest], the 
+      #[em Resources] and the #[em Activities].
+    h4 App Manifest
+    p.
+      The manifest is an xml file named #[em AndroidManifest.xml] and it is placed in the
+      root directory of the app. It contains information about the app, and is essential
+      for the app to work. It can be regarded as a package of everything the operating system
+      should know about the app. Such as, which permissions it needs, its name, what devices
+      the app supports etc. You can read more about the manifest at: 
+      #[a(href="https://developer.android.com/guide/topics/manifest/manifest-intro.html") https://developer.android.com/guide/topics/manifest/manifest-intro.html]
+    h4 Resources
+    p.
+      Resources are strings, graphics etc. which has been externalized from the application code.
+      The point of externalizing these resources, is to make it easier to change, localize and 
+      adapt the app. Read more about resources #[a(href="https://developer.android.com/guide/topics/resources/available-resources.html") here]
+    h4 Activities
+    p.
+      Provides a screen with which users can interact. Think of it from the perspective of 
+      the user, the idea is that the user is engaging in an activity with the app. And an
+      activity provides a user with the means to do so. Read more at:
+      #[a(href="https://developer.android.com/guide/components/activities.html") https://developer.android.com/guide/components/activities.html]
+    h3 Size measures
+    p.
+      
+    h3 Layouts
+    p. 
+      A layout, is an XML file which defines the structure of a user interface. It could be
+      used for an activity. The idea is similar to HTML, you write the components of the 
+      UI as a tree-structure, which will then be rendered to the window.
+    p.
+      There are many different layouts, and they can come and go. We will focus on some of 
+      the most general layouts here.
+    h4 Frame Layout
+    p. 
+      A very light layout, that is very efficient to use. It's designed to block out an 
+      area on the screen to display a single item. In general it should only hold a single
+      child view, because it's difficult to make the layout scalable without overlapping
+      children. Read more #[a(href="https://developer.android.com/reference/android/widget/FrameLayout.html") here]
+    h5 Example:
+    div.row
+      div.column.medium-3
+        img(src="/static/images/frame_layout.png")
+      div.column.medium-9
+        pre
+          code.xml.
+            &lt;?xml version="1.0" encoding="utf-8"?&gt;
+            &lt;FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                tools:context="com.example.lukas.myapplication.MainActivity"&gt;
+
+                &lt;TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Hello World!"
+                    android:textSize="100sp"/&gt;
+                &lt;TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginBottom="50dp"
+                    android:background="#ddaa55"
+                    android:text="Block out the sun!"
+                    android:textSize="50sp"/&gt;
+            &lt;/FrameLayout&gt;
+    br
+    p.
+      Note the #[tt android:layout_gravity] which positions the view somewhere on the screen.
+    h4 Linear Layout
+    p.
+      This layout, arranges the children either side by side or from top to bottom. It's a very
+      simple way of arranging your views. The direction of the arrangement can be set with
+      #[tt setOrientation()] or by setting the #[tt android:orientation] field on the layout.
+      Read more about the #[a(href="https://developer.android.com/reference/android/widget/LinearLayout.html") Linear Layout]
+    h5 Example:
+    div.row
+      div.column.medium-3
+        img(src="/static/images/linear_layout.png")
+      div.column.medium-9
+        pre
+          code.xml.
+            &lt;?xml version="1.0" encoding="utf-8"?&gt;
+            &lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                tools:context="com.example.lukas.myapplication.MainActivity"&gt;
+
+                &lt;TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Hello World!"
+                    android:background="#FF0000"
+                    android:textSize="50sp"/&gt;
+                &lt;TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#ddaa55"
+                    android:text="Fill the parent to the sides"
+                    android:textSize="20sp"/&gt;
+                &lt;TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_gravity="center_vertical"
+                    android:background="#44aaaa"
+                    android:text="Fill the parent to the bottom!"
+                    android:textSize="20sp"/&gt;
+            &lt;/LinearLayout&gt;
+    h4 Table Layout
+    p.
+      This layout arranges its children into rows and columns. This is good for tabular 
+      layouts, and very simple to use, but it's very rigid. You can only make table-like 
+      designs with it. Read more #[a(href="https://developer.android.com/reference/android/widget/TableLayout.html") here]
+    h5 Example:
+    div.row
+      div.column.medium-3
+        img(src="/static/images/table_layout.png")
+      div.column.medium-9
+        pre
+          code.xml.
+            &lt;?xml version="1.0" encoding="utf-8"?&gt;
+            &lt;TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                tools:context="com.example.lukas.myapplication.MainActivity"&gt;
+
+                &lt;TableRow&gt;
+                    &lt;TextView
+                        android:text="Row 1 column 1"
+                        android:background="#22ddee"
+                        android:padding="10dp"
+                        android:layout_margin="5dp"/&gt;
+                &lt;/TableRow&gt;
+
+                &lt;TableRow&gt;
+                    &lt;TextView
+                        android:text="Row2 column 1-3"
+                        android:background="#00AAFF"
+                        android:padding="10dp"
+                        android:layout_span="3"
+                        android:layout_margin="5dp"/&gt;
+                &lt;/TableRow&gt;
+
+                &lt;TableRow&gt;
+                    &lt;TextView
+                        android:text="Row3 column 1"
+                        android:background="#FF0000"
+                        android:padding="10dp"
+                        android:layout_margin="5dp"/&gt;
+                    &lt;TextView
+                        android:text="Row3 column 2"
+                        android:background="#00FF00"
+                        android:padding="10dp"
+                        android:layout_margin="5dp"/&gt;
+                    &lt;TextView
+                        android:text="Row3 column 3"
+                        android:background="#FFFF00"
+                        android:padding="10dp"
+                        android:layout_margin="5dp"/&gt;
+                &lt;/TableRow&gt;
+            &lt;/TableLayout&gt;
+    p.
+      Here, note the #[tt TableRow] views, the #[tt android:layout_span] and the 
+      #[tt android:layout_margin].
+    h4 Relative Layout
+    p.
+      This is a very powerful layout, where the positions of the children can be described
+      in relation to each other or to the parent. There isn't much that this layout can't 
+      do. You pay in efficiency though, if you just want 3 elements side-by-side, then the
+      Linear Layout is the way to go, and if you want a table then the Table Layout is the 
+      way to go. Read more #[a(href="https://developer.android.com/reference/android/widget/RelativeLayout.html") here]
+    h5 Example:
+    div.row
+      div.column.medium-3
+        img(src="/static/images/relative_layout.png")
+      div.column.medium-9
+        pre
+          code.xml.
+            &lt;?xml version="1.0" encoding="utf-8"?&gt;
+            &lt;RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                tools:context="com.example.lukas.myapplication.MainActivity"&gt;
+
+                &lt;TextView
+                    android:id="@+id/text1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Hello World!"
+                    android:textSize="20dp"
+                    android:padding="10dp"
+                    android:background="#FF0000"
+                    android:layout_toRightOf="@id/text1"/&gt;
+                &lt;TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Centered in parent, and below red"
+                    android:textSize="20dp"
+                    android:padding="10dp"
+                    android:background="#00FF00"
+                    android:layout_below="@id/text1"
+                    android:layout_centerInParent="true"/&gt;
+                &lt;TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Centered in parent!"
+                    android:textSize="20dp"
+                    android:padding="10dp"
+                    android:background="#FF00FF"
+                    android:layout_centerInParent="true"/&gt;
+                &lt;TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="To right of red"
+                    android:textSize="20dp"
+                    android:padding="10dp"
+                    android:background="#00FFFF"
+                    android:layout_toRightOf="@id/text1"/&gt;
+            &lt;/RelativeLayout&gt;
+      p.
+        Here, note the #[tt android:layout_toRightOf], #[tt android:layout_below],
+        #[tt android:layout_centerInParent]
+  section.column.small-12
+    h2 Exercises
+    //Different size measures, different screens
+    //Different orientations for some layout
+    //Tabular Layout in Linear Layout
+    //Linear Layout in Relative Layout
+    //Frame Layout in Relative Layout
+  section.column.small-12
+    h2 Hand-in
+    // Different screen sizes, different orientations, same look
