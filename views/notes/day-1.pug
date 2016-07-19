@@ -40,8 +40,55 @@ block content
       activity provides a user with the means to do so. Read more at:
       #[a(href="https://developer.android.com/guide/components/activities.html") https://developer.android.com/guide/components/activities.html]
     h3 Size measures
+    p. 
+      Imagine a 5-inch phone, with a resolution of \(640 \times 480\), and another 5-inch phone with a resolution
+      of \(1920 \times 1080\). Even though the screens has the same sizes, the amount of pixels in the screens are
+      vastly different! Therefore, Android supports quite a few ways of specifying the various sizes in
+      a layout.
+    dl
+      dt dp
+      dd.
+        Density-independent Pixels - An abstract unit that is based on the physical density of the screen. 
+        These units are relative to a \(160 dpi\) (dots per inch) screen, on which \(1dp\) is roughly equal to \(1px\). 
+        When running on a higher density screen, the number of pixels used to draw 1dp is scaled up by a 
+        factor appropriate for the screen's dpi. Likewise, when on a lower density screen, the number of 
+        pixels used for \(1dp\) is scaled down. The ratio of dp-to-pixel will change with the screen density, 
+        but not necessarily in direct proportion. Using dp units (instead of px units) is a simple solution 
+        to making the view dimensions in your layout resize properly for different screen densities. In other 
+        words, it provides consistency for the real-world sizes of your UI elements across different devices.
+      dt sp
+      dd.
+        Scale-independent Pixels - This is like the dp unit, but it is also scaled by the user's font size 
+        preference. It is recommend you use this unit when specifying font sizes, so they will be adjusted 
+        for both the screen density and the user's preference.
+      dt pt
+      dd.
+        Points - \(\frac{1}{72}\) of an inch based on the physical size of the screen.
+      dt px
+      dd.
+        Pixels - Corresponds to actual pixels on the screen. This unit of measure is not recommended because 
+        the actual representation can vary across devices; each devices may have a different number of pixels 
+        per inch and may have more or fewer total pixels available on the screen.
+      dt mm
+      dd.
+        Millimeters - Based on the physical size of the screen.
+      dt in
+      dd.
+        Inches - Based on the physical size of the screen.
     p.
-      
+      To illustrate the issue, below are shown the same layout in two different resolution screens.
+      To the left, the phone is \(5.2\) inches and \(540 \times 960\). The phone to the right is 
+      \(5.2\) inches and has a resolution of \(1080 \times 1920\). The top 3 rows uses dp, and the 
+      bottom 3 rows use px.
+    div.row
+        div.column.medium-4
+          img(src="/static/images/5-2in540x960.png")
+        div.column.medium-4
+          img(src="/static/images/5-2in1080x1920.png")
+    p.
+      It's easy to see the difference. On the left phone, there is almost no difference between a px
+      and a dp, but as the resolution increases, the px values will scale badly and get closer and closer
+      together (as the size of the pixels decreases).
     h3 Layouts
     p. 
       A layout, is an XML file which defines the structure of a user interface. It could be
