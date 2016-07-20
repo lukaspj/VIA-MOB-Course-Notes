@@ -8,7 +8,8 @@ html
     link(rel='stylesheet', href='/static/stylesheets/slides/reveal.css')
     link(rel='stylesheet', href='/static/stylesheets/slides/theme/serif.css')
     link(rel='stylesheet', href='/static/stylesheets/highlight/railscasts.css')
-    
+    link(rel='stylesheet', href='/static/stylesheets/slides/application.css')
+
     script.
       var link = document.createElement('link');
       link.rel = 'stylesheet';
@@ -43,6 +44,7 @@ script.
     dependencies: [
       {src: '/static/javascripts/vendor/markdown/marked.js'},
       {src: '/static/javascripts/vendor/markdown/markdown.js'},
+      {src: '/static/javascripts/vendor/math.js'},
       {src: '/static/javascripts/vendor/notes/notes.js', async: true},
       {
         src: '/static/javascripts/vendor/highlight/highlight.js',

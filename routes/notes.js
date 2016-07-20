@@ -6,7 +6,7 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/day-1', function(req, res, next) {
-    res.render('notes/day-1', { title: 'Express' });
+    res.render('notes/day-1', { title: 'MOB: Lecture notes day 1' });
 });
 
 module.exports = router;
