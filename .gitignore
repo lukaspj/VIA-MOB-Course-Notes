@@ -38,3 +38,7 @@ jspm_packages
 
 # IDEA
 .idea/
+
+
+# MAC
+*.DS_Store
