@@ -1,0 +1,19 @@
+extends layout
+
+block content
+  pre
+    code.Java.
+        &lt;?xml version="1.0" encoding="utf-8"?&gt;
+        &lt;resources&gt;
+            &lt;declare-styleable name="PieChart"&gt;
+                &lt;attr name="showText" format="boolean" /&gt;
+                &lt;attr name="labelPosition" format="enum"&gt;
+                    &lt;enum name="left" value="0" /&gt;
+                    &lt;enum name="right" value="1" /&gt;
+                &lt;/attr&gt;
+                &lt;attr name="text" format="string" /&gt;
+                &lt;attr name="pieStart" format="float" /&gt;
+                &lt;attr name="pieEnd" format="float" /&gt;
+            &lt;/declare-styleable&gt;
+        &lt;/resources&gt;
+        

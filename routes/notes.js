@@ -10,4 +10,10 @@ var router = express.Router();
     });
 });
 
+["pie-chart", "pie-chart-activity_main", "pie-chart-attrs"].forEach((current, index) => {
+   router.get('/code-example-' + current, (req, res, next) => {
+       res.render('notes/code-examples/' + current, { title: 'Code Example: ' + current});
+   });
+});
+
 module.exports = router;

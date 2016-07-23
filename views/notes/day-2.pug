@@ -47,6 +47,13 @@ block content
         Define values such as booleans, integers, dimensions, colors, and other arrays. #[br]
         Saved in #[tt res/values/] but each accessed from unique #[tt R] sub-classes (such as #[tt R.bool],
         #[tt R.integer], #[tt R.dimen], etc.).
+    h4 Providing resources
+    p.
+      Sometimes, you might want to choose a resource based on some qualifier. E.g. you might want to have one
+      layout in portrait mode, and one layout in landscape mode. You can implement these two layouts without
+      any hassle, by simply creating 2 layout files, and placing one in #[tt res/layout-port] and one in 
+      #[tt res/layout-land]. You can read more about providing resources
+      #[a(href="https://developer.android.com/guide/topics/resources/providing-resources.html") here].
     h4 Accessing resources
     p.
       When accessing resources, you will use the #[tt R] class (as described for each type above) when you
@@ -232,15 +239,168 @@ block content
     p.
       A detailed guide can be found #[a(href="https://developer.android.com/training/custom-views/index.html") here].
     h4 Custom drawing
+    p
+      em
+        | This section is very code-heavy, so be aware that each piece of code is separated by some text that you should
+        | not miss.
     p.
       In many cases, you might want to draw some specialized graphics for your app, like diagrams or special
       components. Android supports this through the #[tt Paint] and #[tt Canvas] objects. Simply override the
       #[tt onDraw] event, which provides the #[tt Canvas] object. Then you just need to create #[tt Paint] objects
-      in the #[onDraw] event. Like so:
-    pre
-      code.Java.
-        // Example code here
-
+      in the #[onDraw] event.
+    p.
+      Before implementing the drawing however, we will take a complete run-down of how to implement a simple pie-chart
+      control. If we start with the constructor, we want to read the values from the attributes and then initialize our
+      #[tt Paint] objects. We want to initialize the #[tt Paint] in the constructor, so they can be re-used every time
+      we draw (which happens a lot).
+    p
+      pre
+        code.Java.
+          public PieChart(Context context, AttributeSet attrs) {
+              super(context, attrs);
+          
+              // Read attributes from the TypedArray
+  
+              init();
+          }
+    p.
+      Very simple, we can then setup all the Paint objects in the init file:
+    p
+      pre
+        code.Java.
+          private void init() {
+              // Used ANTI_ALIAS_FLAG to avoid jagged edges on the text
+              mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+              mTextPaint.setColor(Color.GREEN);
+  
+              if (mTextHeight == 0) {
+                  mTextHeight = mTextPaint.getTextSize();
+              } else {
+                  mTextPaint.setTextSize(mTextHeight);
+              }
+  
+              // Setup the Paint for one of the pies
+              mPiePaint1 = new Paint(Paint.ANTI_ALIAS_FLAG);
+              mPiePaint1.setStyle(Paint.Style.FILL);
+              mPiePaint1.setTextSize(mTextHeight);
+              mPiePaint1.setColor(Color.LTGRAY);
+  
+              // Repeat for the other pie
+              mPiePaint2 = new Paint(Paint.ANTI_ALIAS_FLAG);
+              mPiePaint2.setStyle(Paint.Style.FILL);
+              mPiePaint2.setTextSize(mTextHeight);
+              mPiePaint2.setColor(Color.MAGENTA);
+          }
+    p.
+      Whenever the View is resized, we need to adapt to the new size. In our case, we want the pie-chart to always
+      form a proper circle (no ellipsis). Therefore, we need to make sure it has the same width as height. We can
+      make sure that this is the case, by adapting to new sizes in the #[tt onSizeChanged] event:
+    p 
+      pre
+        code.Java.
+          @Override
+          protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+              super.onSizeChanged(w, h, oldw, oldh);
+  
+              // Make sure that there is room for the text at the bottom
+              int pieHeight = h - (int)mTextPaint.getTextSize();
+              
+              // Compute the maximum pie diameter
+              int maxDiameter = Math.min(w, pieHeight);
+  
+              int centerX = w / 2;
+              int centerY = pieHeight / 2;
+              int radius = maxDiameter / 2;
+  
+              mPieBounds = new RectF(
+                      centerX - radius,
+                      centerY - radius,
+                      centerX + radius,
+                      centerY + radius
+              );
+          }
+    p.
+      Finally, we need to render the pie-chart. Our pie-chart is very simple, and it only supports two slices of the 
+      pie. So we can simply call #[tt drawArc] twice, where the second call is simply the rest of the pie. 
+    p
+      pre
+        code.Java.
+          @Override
+          protected void onDraw(Canvas canvas) {
+              super.onDraw(canvas);
+  
+              int height = getMeasuredHeight();
+              int width = getMeasuredWidth();
+  
+              // drawArc takes 5 arguments. The bounding rectangle of the arc, the startAngle, the sweepAngle (which
+              // is how much to sweep from the startAngle), a boolean that says whether the fill should join at the
+              // center, and finally the paint for the arc.
+              canvas.drawArc(
+                      mPieBounds,
+                      mPieStart,
+                      mPieEnd,
+                      true,
+                      mPiePaint1
+              );
+  
+              // Draw the other arc
+              canvas.drawArc(
+                      mPieBounds,
+                      mPieEnd,
+                      360 - (mPieEnd - mPieStart),
+                      true,
+                      mPiePaint2
+              );
+          
+              float textWidth = mTextPaint.measureText(mText);
+              // Compute the center of the View
+              int centerX = width / 2;
+              // Draw the text at the bottom of the View, centered horizontally
+              canvas.drawText(mText, centerX - textWidth / 2, height, mTextPaint);
+          }
+    p. 
+      The result is a simple pie-chart control, that can be included in any layout as follows:
+    p
+      pre
+        code.Xml.
+          &lt;?xml version="1.0" encoding="utf-8"?&gt;
+          &lt;FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              xmlns:custom="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:paddingBottom="@dimen/activity_vertical_margin"
+              android:paddingLeft="@dimen/activity_horizontal_margin"
+              android:paddingRight="@dimen/activity_horizontal_margin"
+              android:paddingTop="@dimen/activity_vertical_margin"
+              tools:context="com.example.lukas.myapplication.MainActivity"&gt;
+  
+              &lt;com.example.lukas.myapplication.PieChart
+                  custom:labelPosition="left"
+                  custom:showText="true"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  custom:text="Foo"
+                  custom:pieStart="70"
+                  custom:pieEnd="180" /&gt;
+  
+          &lt;/FrameLayout&gt;
+    p.
+      The result can be seen below, notice how it adapts to both portrait and landscape view, and makes sure that the
+      circle is always regular.
+    div.row
+      div.column.medium-4
+        img(src="/static/images/pie-chart-port.png")
+      div.column.medium-8
+        img(src="/static/images/pie-chart-land.png")
+    p The full code for this example is available here. 
+      ul
+        li
+          a(href="http://localhost:3000/notes/code-example-pie-chart") PieChart.java
+        li
+          a(href="http://localhost:3000/notes/code-example-pie-chart-activity_main") activity_main.xml
+        li
+          a(href="http://localhost:3000/notes/code-example-pie-chart-attrs") attrs.xml
   section.column.small-12
     h2 Exercises
-    h4 Exercise 1
+    tt TBD

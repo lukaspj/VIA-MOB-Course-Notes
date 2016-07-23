@@ -5,3 +5,7 @@ body {
 body>header {
     margin-bottom: 2em;
 }
+
+.content-container {
+    margin-bottom: 3em;
+}
