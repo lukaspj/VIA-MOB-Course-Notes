@@ -1,0 +1,127 @@
+extends layout
+
+block content
+  pre
+    code.Java.
+        package com.example.lukas.myapplication;
+
+        import android.content.Context;
+        import android.content.res.TypedArray;
+        import android.graphics.Canvas;
+        import android.graphics.Color;
+        import android.graphics.Paint;
+        import android.graphics.RectF;
+        import android.util.AttributeSet;
+        import android.view.View;
+
+        /**
+         * Created by Lukas on 23-07-2016.
+         */
+        public class PieChart extends View {
+
+            boolean mShowText = false;
+            int mTextPos = 0;
+            String mText = "Hello world!";
+            private Paint mTextPaint;
+            private Paint mPiePaint1;
+            private float mTextHeight;
+            private Paint mPiePaint2;
+            private RectF mPieBounds;
+            private float mPieStart;
+            private float mPieEnd;
+
+
+            public PieChart(Context context, AttributeSet attrs) {
+                super(context, attrs);
+
+                TypedArray a = context.getTheme().obtainStyledAttributes(
+                        attrs,
+                        R.styleable.PieChart,
+                        0, 0
+                );
+
+                try {
+                    mShowText = a.getBoolean(R.styleable.PieChart_showText, false);
+                    mTextPos = a.getInteger(R.styleable.PieChart_labelPosition, 0);
+                    mText = a.getString(R.styleable.PieChart_text);
+                    mPieStart = a.getFloat(R.styleable.PieChart_pieStart, 0);
+                    mPieEnd = a.getFloat(R.styleable.PieChart_pieEnd, 90);
+                } finally {
+                    a.recycle();
+                }
+
+                init();
+            }
+
+            private void init() {
+                mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                mTextPaint.setColor(Color.GREEN);
+
+                if (mTextHeight == 0) {
+                    mTextHeight = mTextPaint.getTextSize();
+                } else {
+                    mTextPaint.setTextSize(mTextHeight);
+                }
+
+                mPiePaint1 = new Paint(Paint.ANTI_ALIAS_FLAG);
+                mPiePaint1.setStyle(Paint.Style.FILL);
+                mPiePaint1.setTextSize(mTextHeight);
+                mPiePaint1.setColor(Color.LTGRAY);
+
+                mPiePaint2 = new Paint(Paint.ANTI_ALIAS_FLAG);
+                mPiePaint2.setStyle(Paint.Style.FILL);
+                mPiePaint2.setTextSize(mTextHeight);
+                mPiePaint2.setColor(Color.MAGENTA);
+            }
+
+            @Override
+            protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+                super.onSizeChanged(w, h, oldw, oldh);
+
+                int pieHeight = h - (int)mTextPaint.getTextSize();
+
+                int maxSize = Math.min(w, pieHeight);
+
+                int centerX = w / 2;
+                int centerY = pieHeight / 2;
+                int radius = maxSize / 2;
+
+                mPieBounds = new RectF(
+                        centerX - radius,
+                        centerY - radius,
+                        centerX + radius,
+                        centerY + radius
+                );
+            }
+
+            @Override
+            protected void onDraw(Canvas canvas) {
+                super.onDraw(canvas);
+
+                int height = getMeasuredHeight();
+                int width = getMeasuredWidth();
+
+                int centerX = width / 2;
+
+                float textWidth = mTextPaint.measureText(mText);
+
+                canvas.drawArc(
+                        mPieBounds,
+                        mPieStart,
+                        mPieEnd,
+                        true,
+                        mPiePaint1
+                );
+
+                canvas.drawArc(
+                        mPieBounds,
+                        mPieEnd,
+                        360 - (mPieEnd - mPieStart),
+                        true,
+                        mPiePaint2
+                );
+
+                canvas.drawText(mText, centerX - textWidth / 2, height, mTextPaint);
+            }
+        }
+        
