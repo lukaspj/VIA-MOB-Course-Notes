@@ -403,4 +403,35 @@ block content
           a(href="http://localhost:3000/notes/code-example-pie-chart-attrs") attrs.xml
   section.column.small-12
     h2 Exercises
-    tt TBD
+    h4 Exercise 1
+    p.
+      Create two layouts, one to render the app when the device is in portrait mode, and one to render the app when
+      the device is in landscape mode. Use the qualifiers, so that Android chooses the correct layout for you. Try 
+      doing it for different screen densities as well.
+    h4 Exercise 2
+    p.
+      Discuss or consider, why you would want different drawable (like images) for different device densities.
+    h4 Exercise 3
+    p.
+      Create a fragment that renders some UI, and insert it into your main activity's layout.
+    h4 Exercise 4
+    p.
+      Create two fragments integrate them into the main layout in a way that make sense in landscape mode, but not 
+      in portrait mode. It could, for example, be that you have a sidebar and a content view. Like this:
+    div.row
+      div.column.medium-4
+        img(src="/static/images/fragment-sidebar-port.png")
+      div.column.medium-8
+        img(src="/static/images/fragment-sidebar-land.png")
+    p.
+      Then utilize the technique from Exercise 1, to restructure the layout in a meaningful way. You might want to have 
+      the sidebar below the content.
+    h4 Exercise 5
+    p.
+      Create a new view, that works like a TextView, but with an unmodifiable text.
+    h4 Exercise 6
+    p.
+      Create a new view, that renders a triangle.
+    h4 Exercise 7
+    p.
+      Create a new view, that renders a triangle with a colour that can be set via an attribute.
