@@ -1,0 +1,246 @@
+extends layout
+
+block header
+  h2 Course page for: #[strong Mobile Applications]
+  
+block content
+  section.column.small-12
+    h2 Lecture notes: day 2
+    h3 Resources
+    p.
+      Resources are used for separating your code from your configuration. Similar to what CSS is to HTML.
+      You can, and should, store displayed text, colors, images etc. in resources. And in some (if not all)
+      cases, even the sizes of components. This will help a lot when you make apps that works on more than
+      one language, screen size and density. The different types of resources are described below:
+    dl
+      dt Animation Resources
+      dd.
+        Define pre-determined animations. #[br]
+        Tween animations are saved in #[tt res/anim/] and accessed from the #[tt R.anim] class. #[br]
+        Frame animations are saved in #[tt res/drawable/] and accessed from the #[tt R.drawable] class.
+      dt Color State List Resource
+      dd.
+        Define a color resources that changes based on the View state. #[br]
+        Saved in #[tt res/color/] and accessed from the #[tt R.color] class.
+      dt Drawable Resources
+      dd.
+        Define various graphics with bitmaps or XML. #[br]
+        Saved in #[tt res/drawable/] and accessed from the #[tt R.drawable] class.
+      dt Layout Resource
+      dd.
+        Define the layout for your application UI. #[br]
+        Saved in #[tt res/layout/] and accessed from the #[tt R.layout] class.
+      dt Menu Resource
+      dd.
+        Define the contents of your application menus. #[br]
+        Saved in #[tt res/menu/] and accessed from the #[tt R.menu] class.
+      dt String Resources
+      dd.
+        Define strings, string arrays, and plurals (and include string formatting and styling). #[br]
+        Saved in #[tt res/values/] and accessed from the #[tt R.string], #[tt R.array], and #[tt R.plurals] classes.
+      dt Style Resource
+      dd.
+        Define the look and format for UI elements. #[br]
+        Saved in #[tt res/values/] and accessed from the #[tt R.style] class.
+      dt More Resource Types
+      dd.
+        Define values such as booleans, integers, dimensions, colors, and other arrays. #[br]
+        Saved in #[tt res/values/] but each accessed from unique #[tt R] sub-classes (such as #[tt R.bool],
+        #[tt R.integer], #[tt R.dimen], etc.).
+    h4 Accessing resources
+    p.
+      When accessing resources, you will use the #[tt R] class (as described for each type above) when you
+      need to access it from the (Java-)code. If you need to access it from XML, you can use the following format:
+       #[tt @type/name]. For example:
+    pre
+      code.XML.
+        &lt;Button
+            android:text="@string/submit" /&gt;
+    p.
+      Read more about the different resources
+      #[a(href="https://developer.android.com/guide/topics/resources/available-resources.html") here]. #[br]
+      You can find the documentation page for accessing resources
+      #[a(href="https://developer.android.com/guide/topics/resources/accessing-resources.html") here].
+    h3 Fragments
+    p.
+      A "fragment" refers to a user-interface fragment. You can think of a top-menu as a fragment, some specific table
+      or a pop-up menu like an alert. You can fragment your interface into different components, that can be swapped,
+      updated or removed at run-time or simply re-used across layouts.
+    p.
+      To create a fragment, you simply create a new layout xml file in #[tt res/layout/fragment-name.xml]. Then you can
+      include the fragment in another layout, this can be done in the following way:
+    pre
+      code.XML.
+        &lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"&gt;
+
+            &lt;fragment android:name="com.example.android.fragments.ArticleFragment"
+                      android:id="@+id/article_fragment"
+                      android:layout_weight="2"
+                      android:layout_width="0dp"
+                      android:layout_height="match_parent" /&gt;
+
+        &lt;/LinearLayout&gt;
+    p.
+      Furthermore, fragments both define their own layout as well as their own behaviour. Therefore, in order to supply
+      the behaviour for the fragment, you need to create an Activity for the behaviour. Such an Activity could look like
+      this:
+    pre
+      code.Java.
+        import android.os.Bundle;
+        import android.support.v4.app.Fragment;
+        import android.view.LayoutInflater;
+        import android.view.ViewGroup;
+
+        public class ArticleFragment extends Fragment {
+            @Override
+            public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                  Bundle savedInstanceState) {
+                // Inflate the layout for this fragment
+                return inflater.inflate(R.layout.article_view, container, false);
+            }
+        }
+    a(href="https://developer.android.com/training/basics/fragments/creating.html") Find an in-depth guide here.
+    p.
+      An example of a case where there could be such a need, could be a layout that works well on tablets, but
+      not on smartphones. Where you might want to split the content into two activities for the phone, but you
+      would rather not have to write the layout and code for the fragments twice.
+    img(src="/static/images/fragment_display_landscape_portrait.png")
+    p.
+      This is easily solved by using the fragments as shown above.
+    p.
+      Using fragments through XML is, however, quite a static approach. This will allow us to fragment a layout into
+      several smaller layouts, and reuse fragments across layouts. If we insert the fragment through code, then we can
+      do it dynamically at the time that suits us, and replace one fragment with another or remove a fragment. It's
+      slightly more involved, but comes with a lot more flexibility.
+    h4 Fragment transactions
+    p.
+      When you handle fragments through code, you work in something called #[tt Fragment transactions].
+      First, you start a transaction, then you add, remove and replace fragments as you please. In the
+      end, you can commit a transaction to finish it or roll it back. In order to initiate the transition,
+      you need to access the #[tt FragmentManager] which provides some utility for working with fragments.
+      The full process for adding a fragment through code is as follows:
+    pre
+      code.Java.
+        // Create new fragment and transaction
+        Fragment newFragment = new ExampleFragment();
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+
+        // Replace whatever is in the fragment_container view with this fragment,
+        // and add the transaction to the back stack
+        transaction.replace(R.id.fragment_container, newFragment);
+        transaction.addToBackStack(null);
+
+        // Commit the transaction
+        transaction.commit();
+    p.
+      The fragment can communicate with the activity with the #[tt getActivity()] method, and the activity
+      can communicate with the fragment using the #[tt FragmentManager]'s #[tt findFragmentById(id)] method:
+    pre
+      code.Java.
+        // Fragment &rarr; Activity
+        View listView = getActivity().findViewById(R.id.list);
+
+        // Activity &rarr; Fragment
+        ExampleFragment fragment = (ExampleFragment) getFragmentManager().findFragmentById(R.id.example_fragment);
+    p.
+      The documentation for Android explains all this, and also how to send event callbacks from the fragment to the
+      activity. You can read the relevant page
+      #[a(href="https://developer.android.com/guide/components/fragments.html") here].
+
+    h3 Creating new Views
+    p.
+      It's hard to avoid the need for creating new views for the user-interface, luckily there is rich support for
+      implementing new #[tt Views], so you can achieve that beautiful app-design you are striving for. There are three
+      main reasons that you would want to create a new #[tt View]:
+    dl
+      dt Modify or extend the appearance and/or behaviour of an existing View
+      dd
+        | When a view supplies the basic functionality that you want, but you need it to behave in a slightly different
+        | way. Such as a #[tt TextView] that can only show numbers with some amount of decimals.
+      dt Combine views
+      dd If you have some combination of #[tt Views] with some interaction that you want to re-use.
+      dt Create an entirely new control
+      dd
+        | When you need something that is completely different from existing solutions, such as a compass, a graph
+        | or something similar.
+    p.
+      Utilizing the fact that the Android toolbox comes with a wide range of different #[tt Views], that provide a lot
+      of common UI behaviour, we can extend these views to avoid re-implementing that base behaviour. It is as simple
+      as creating a new class that extends the given #[tt View], and then override the necessary events. If you
+      want to create a #[tt View] from scratch, simply extend the #[tt View] class.
+    pre
+      code.Java.
+        // New View from scratch
+        class PieChart extends View {
+            public PieChart(Context context, AttributeSet attrs) {
+                super(context, attrs);
+            }
+        }
+
+        // Modify an existing View
+        class MyTextView extends TextView {
+            public MyTextView(Context context, AttributeSet attrs) {
+                super(context, attrs);
+            }
+        }
+    p.
+      You can declare special attributes for the custom view, using the resource system. Simply create a new XML
+      file in #[tt res/values/file-name.xml], which should look like this:
+    pre
+      code.XML.
+        &lt;resources&gt;
+           &lt;declare-styleable name="PieChart"&gt;
+               &lt;attr name="showText" format="boolean" /&gt;
+               &lt;attr name="labelPosition" format="enum"&gt;
+                   &lt;enum name="left" value="0"/&gt;
+                   &lt;enum name="right" value="1"/&gt;
+               &lt;/attr&gt;
+           &lt;/declare-styleable&gt;
+        &lt;/resources&gt;
+    p.
+      Now, you can set the attributes in the layout as usual:
+    pre
+      code.XML.
+        &lt;?xml version="1.0" encoding="utf-8"?&gt;
+        &lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+           xmlns:custom="http://schemas.android.com/apk/res/your.package.name"&gt;
+         &lt;your.package.name.PieChart
+             custom:showText="true"
+             custom:labelPosition="left" /&gt;
+        &lt;/LinearLayout&gt;
+    p.
+      And then, in the code, you can retrieve the value of those attributes like so:
+    pre
+      code.Java.
+        public PieChart(Context context, AttributeSet attrs) {
+           super(context, attrs);
+           TypedArray a = context.getTheme().obtainStyledAttributes(
+                attrs,
+                R.styleable.PieChart,
+                0, 0);
+
+           try {
+               mShowText = a.getBoolean(R.styleable.PieChart_showText, false);
+               mTextPos = a.getInteger(R.styleable.PieChart_labelPosition, 0);
+           } finally {
+               a.recycle();
+           }
+        }
+    p.
+      A detailed guide can be found #[a(href="https://developer.android.com/training/custom-views/index.html") here].
+    h4 Custom drawing
+    p.
+      In many cases, you might want to draw some specialized graphics for your app, like diagrams or special
+      components. Android supports this through the #[tt Paint] and #[tt Canvas] objects. Simply override the
+      #[tt onDraw] event, which provides the #[tt Canvas] object. Then you just need to create #[tt Paint] objects
+      in the #[onDraw] event. Like so:
+    pre
+      code.Java.
+        // Example code here
+
+  section.column.small-12
+    h2 Exercises
+    h4 Exercise 1

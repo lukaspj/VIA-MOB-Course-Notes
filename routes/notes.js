@@ -4,9 +4,10 @@
 var express = require('express');
 var router = express.Router();
 
-/* GET home page. */
-router.get('/day-1', function(req, res, next) {
-    res.render('notes/day-1', { title: 'MOB: Lecture notes day 1' });
+[1, 2].forEach((current, index) => {
+    router.get('/day-' + current, function(req, res, next) {
+        res.render('notes/day-' + current, { title: 'MOB: Lecture notes day ' + current });
+    });
 });
 
 module.exports = router;
