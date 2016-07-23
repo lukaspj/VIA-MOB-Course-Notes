@@ -2,7 +2,7 @@ extends layout
 
 block header
   h2 Course page for: #[strong Mobile Applications]
-  
+
 block content
   section.column.small-12
     h2 Lecture notes: day 1
@@ -82,10 +82,10 @@ block content
       \(5.2\) inches and has a resolution of \(1080 \times 1920\). The top 3 rows uses dp, and the 
       bottom 3 rows use px.
     div.row
-        div.column.medium-4
-          img(src="/static/images/5-2in540x960.png")
-        div.column.medium-4
-          img(src="/static/images/5-2in1080x1920.png")
+      div.column.medium-4
+        img(src="/static/images/5-2in540x960.png")
+      div.column.medium-4
+        img(src="/static/images/5-2in1080x1920.png")
     p.
       It's easy to see the difference. On the left phone, there is almost no difference between a px
       and a dp, but as the resolution increases, the px values will scale badly and get closer and closer
@@ -94,7 +94,10 @@ block content
     p. 
       A layout, is an XML file which defines the structure of a user interface. It could be
       used for an activity. The idea is similar to HTML, you write the components of the 
-      UI as a tree-structure, which will then be rendered to the window.
+      UI as a tree-structure, which will then be rendered to the window. There are
+      #[tt ViewGroups] which are the nodes of the tree, and #[tt Views] which are the leafs
+      of the tree.
+    img(src="/static/images/viewgroup-tree.png")
     p.
       There are many different layouts, and they can come and go. We will focus on some of 
       the most general layouts here.
