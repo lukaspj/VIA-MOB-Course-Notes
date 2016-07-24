@@ -7,18 +7,18 @@ block content
   section.column.small-12
     h2 Lecture notes: day 1
     h3 Android Studio
-    p. 
-      #[strong *Mandatory exercise*]: You should install Android Studio on your development 
-      computers. You can get it from #[a(href="https://developer.android.com/studio/index.html") here]. 
-      It is cross platform and should work on all operating systems. 
     p.
-      Android Studio comes with an emulator, but you get a better experience if you run 
+      #[strong *Mandatory exercise*]: You should install Android Studio on your development
+      computers. You can get it from #[a(href="https://developer.android.com/studio/index.html") here].
+      It is cross platform and should work on all operating systems.
+    p.
+      Android Studio comes with an emulator, but you get a better experience if you run
       your apps on an Android device. Before you can transfer your apps to your android
-      device, you have to enable USB debugging on the device. Read a full guide 
+      device, you have to enable USB debugging on the device. Read a full guide
       #[a(href="https://developer.android.com/studio/run/device.html") here].
     h3 Anatomy of an app
     p.
-      The main components that make up an app are the #[em App Manifest], the 
+      The main components that make up an app are the #[em App Manifest], the
       #[em Resources] and the #[em Activities].
     h4 App Manifest
     p.
@@ -26,21 +26,21 @@ block content
       root directory of the app. It contains information about the app, and is essential
       for the app to work. It can be regarded as a package of everything the operating system
       should know about the app. Such as, which permissions it needs, its name, what devices
-      the app supports etc. You can read more about the manifest at: 
+      the app supports etc. You can read more about the manifest at:
       #[a(href="https://developer.android.com/guide/topics/manifest/manifest-intro.html") https://developer.android.com/guide/topics/manifest/manifest-intro.html]
     h4 Resources
     p.
       Resources are strings, graphics etc. which has been externalized from the application code.
-      The point of externalizing these resources, is to make it easier to change, localize and 
+      The point of externalizing these resources, is to make it easier to change, localize and
       adapt the app. Read more about resources #[a(href="https://developer.android.com/guide/topics/resources/available-resources.html") here]
     h4 Activities
     p.
-      Provides a screen with which users can interact. Think of it from the perspective of 
+      Provides a screen with which users can interact. Think of it from the perspective of
       the user, the idea is that the user is engaging in an activity with the app. And an
       activity provides a user with the means to do so. Read more at:
       #[a(href="https://developer.android.com/guide/components/activities.html") https://developer.android.com/guide/components/activities.html]
     h3 Size measures
-    p. 
+    p.
       Imagine a 5-inch phone, with a resolution of \(640 \times 480\), and another 5-inch phone with a resolution
       of \(1920 \times 1080\). Even though the screens has the same sizes, the amount of pixels in the screens are
       vastly different! Therefore, Android supports quite a few ways of specifying the various sizes in
@@ -49,26 +49,26 @@ block content
     dl
       dt dp
       dd.
-        Density-independent Pixels - An abstract unit that is based on the physical density of the screen. 
-        These units are relative to a \(160 dpi\) (dots per inch) screen, on which \(1dp\) is roughly equal to \(1px\). 
-        When running on a higher density screen, the number of pixels used to draw 1dp is scaled up by a 
-        factor appropriate for the screen's dpi. Likewise, when on a lower density screen, the number of 
-        pixels used for \(1dp\) is scaled down. The ratio of dp-to-pixel will change with the screen density, 
-        but not necessarily in direct proportion. Using dp units (instead of px units) is a simple solution 
-        to making the view dimensions in your layout resize properly for different screen densities. In other 
+        Density-independent Pixels - An abstract unit that is based on the physical density of the screen.
+        These units are relative to a \(160 dpi\) (dots per inch) screen, on which \(1dp\) is roughly equal to \(1px\).
+        When running on a higher density screen, the number of pixels used to draw 1dp is scaled up by a
+        factor appropriate for the screen's dpi. Likewise, when on a lower density screen, the number of
+        pixels used for \(1dp\) is scaled down. The ratio of dp-to-pixel will change with the screen density,
+        but not necessarily in direct proportion. Using dp units (instead of px units) is a simple solution
+        to making the view dimensions in your layout resize properly for different screen densities. In other
         words, it provides consistency for the real-world sizes of your UI elements across different devices.
       dt sp
       dd.
-        Scale-independent Pixels - This is like the dp unit, but it is also scaled by the user's font size 
-        preference. It is recommend you use this unit when specifying font sizes, so they will be adjusted 
+        Scale-independent Pixels - This is like the dp unit, but it is also scaled by the user's font size
+        preference. It is recommend you use this unit when specifying font sizes, so they will be adjusted
         for both the screen density and the user's preference.
       dt pt
       dd.
         Points - \(\frac{1}{72}\) of an inch based on the physical size of the screen.
       dt px
       dd.
-        Pixels - Corresponds to actual pixels on the screen. This unit of measure is not recommended because 
-        the actual representation can vary across devices; each devices may have a different number of pixels 
+        Pixels - Corresponds to actual pixels on the screen. This unit of measure is not recommended because
+        the actual representation can vary across devices; each devices may have a different number of pixels
         per inch and may have more or fewer total pixels available on the screen.
       dt mm
       dd.
@@ -78,8 +78,8 @@ block content
         Inches - Based on the physical size of the screen.
     p.
       To illustrate the issue, below are shown the same layout in two different resolution screens.
-      To the left, the phone is \(5.2\) inches and \(540 \times 960\). The phone to the right is 
-      \(5.2\) inches and has a resolution of \(1080 \times 1920\). The top 3 rows uses dp, and the 
+      To the left, the phone is \(5.2\) inches and \(540 \times 960\). The phone to the right is
+      \(5.2\) inches and has a resolution of \(1080 \times 1920\). The top 3 rows uses dp, and the
       bottom 3 rows use px.
     div.row
       div.column.medium-4
@@ -91,20 +91,20 @@ block content
       and a dp, but as the resolution increases, the px values will scale badly and get closer and closer
       together (as the size of the pixels decreases).
     h3 Layouts
-    p. 
+    p.
       A layout, is an XML file which defines the structure of a user interface. It could be
-      used for an activity. The idea is similar to HTML, you write the components of the 
+      used for an activity. The idea is similar to HTML, you write the components of the
       UI as a tree-structure, which will then be rendered to the window. There are
       #[tt ViewGroups] which are the nodes of the tree, and #[tt Views] which are the leafs
       of the tree.
     p
       img(src="/static/images/viewgroup-tree.png")
     p.
-      There are many different layouts, and they can come and go. We will focus on some of 
+      There are many different layouts, and they can come and go. We will focus on some of
       the most general layouts here.
     h4 Frame Layout
-    p. 
-      A very light layout, that is very efficient to use. It's designed to block out an 
+    p.
+      A very light layout, that is very efficient to use. It's designed to block out an
       area on the screen to display a single item. In general it should only hold a single
       child view, because it's difficult to make the layout scalable without overlapping
       children. Read more #[a(href="https://developer.android.com/reference/android/widget/FrameLayout.html") here]
@@ -190,8 +190,8 @@ block content
             &lt;/LinearLayout&gt;
     h4 Table Layout
     p.
-      This layout arranges its children into rows and columns. This is good for tabular 
-      layouts, and very simple to use, but it's very rigid. You can only make table-like 
+      This layout arranges its children into rows and columns. This is good for tabular
+      layouts, and very simple to use, but it's very rigid. You can only make table-like
       designs with it. Read more #[a(href="https://developer.android.com/reference/android/widget/TableLayout.html") here]
     h5 Example:
     div.row
@@ -247,14 +247,14 @@ block content
                 &lt;/TableRow&gt;
             &lt;/TableLayout&gt;
     p.
-      Here, note the #[tt TableRow] views, the #[tt android:layout_span] and the 
+      Here, note the #[tt TableRow] views, the #[tt android:layout_span] and the
       #[tt android:layout_margin].
     h4 Relative Layout
     p.
       This is a very powerful layout, where the positions of the children can be described
-      in relation to each other or to the parent. There isn't much that this layout can't 
+      in relation to each other or to the parent. There isn't much that this layout can't
       do. You pay in efficiency though, if you just want 3 elements side-by-side, then the
-      Linear Layout is the way to go, and if you want a table then the Table Layout is the 
+      Linear Layout is the way to go, and if you want a table then the Table Layout is the
       way to go. Read more #[a(href="https://developer.android.com/reference/android/widget/RelativeLayout.html") here]
     h5 Example:
     div.row
@@ -342,8 +342,8 @@ block content
       li The app must incorporate at least three different layout types (like LinearLayout)
       li The app must have a background image
       li The app should look #[em nice]
-      li. 
-        The app should look a bit different for each layout (phone-portrait, phone-landscape etc.) and should be 
+      li.
+        The app should look a bit different for each layout (phone-portrait, phone-landscape etc.) and should be
         specialized to each platform. Alternatively
     p.callout.alert Deadline: Wednesday #[strong (week 1)] 14:00 (after class)
     h4 Example
