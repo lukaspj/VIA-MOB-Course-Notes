@@ -54,6 +54,11 @@ block content
       any hassle, by simply creating 2 layout files, and placing one in #[tt res/layout-port] and one in 
       #[tt res/layout-land]. You can read more about providing resources
       #[a(href="https://developer.android.com/guide/topics/resources/providing-resources.html") here].
+    div.callout.warning
+      p.
+        The qualifiers: small, medium, large and x-large is not the recommended way of declaring qualified 
+        screen sizes anymore, read more 
+        #[a(href="https://developer.android.com/guide/practices/screens_support.html#DeclaringTabletLayouts") here].
     h4 Accessing resources
     p.
       When accessing resources, you will use the #[tt R] class (as described for each type above) when you
