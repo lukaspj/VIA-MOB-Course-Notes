@@ -9,3 +9,11 @@ body>header {
 .content-container {
     margin-bottom: 3em;
 }
+
+.col-weekday {
+  width: 15%;
+}
+
+.col-literature {
+  width: 25%;
+}
