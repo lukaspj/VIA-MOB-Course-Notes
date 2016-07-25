@@ -1,0 +1,114 @@
+extends layout
+
+block content
+  section
+    h2 Hardware sensors
+    i Day 2
+  section
+    h2 Agenda
+    ul
+      li Changing attributes from code
+      li Hardware sensors
+      li Motion, position and environment sensors
+  section
+    h2 Changing attributes from code
+    pre
+      code.Java.
+        // Find the TextView in our interface
+        TextView textView = (TextView) findViewById(R.id.myTextView);
+        // Make some changes to the View
+        textView.setText("SomeNewText");
+        // "Commit" the changes, by invalidating the view, forcing a re-render
+        textView.invalidate();
+  section
+    section
+      h2 Hardware sensors
+      i The SensorManager
+      ul
+        li Retrieve the SensorManager
+        li Get Sensor(s)
+        li Bind event listener
+    section
+      h4 Hardware sensors - Retrieve the SensorManager
+      pre
+        code.Java.
+          mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+    section
+      h4 Hardware sensors - Get the sensor(s)
+      p Get all the sensors on the device:
+      pre
+        code.Java.
+          List deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
+      p Get a specific sensor:
+      pre 
+        code.Java.
+          Sensor sensor = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+          if (sensor != null){
+            // Success! There's a magnetometer.
+          }
+          else {
+            // Failure! No magnetometer.
+          }
+    section
+      h4 Hardware sensors - SensorEventListener interface
+      p.
+        You should feed the Sensor a class that implements the SensorEventListener 
+        interface.
+      pre
+        code.Java.
+          public class SensorActivity extends Activity implements SensorEventListener
+      p This interface has the following two methods:
+      pre
+        code.Java.
+          @Override
+          public final void onAccuracyChanged(Sensor sensor, int accuracy) {
+            // Do something here if sensor accuracy changes.
+          }
+
+          @Override
+          public final void onSensorChanged(SensorEvent event) {
+            // The light sensor returns a single value.
+            // Many sensors return 3 values, one for each axis.
+            float lux = event.values[0];
+            // Do something with this sensor value.
+          }
+    section
+      h4 Hardware sensors - Registering event listener
+      p.
+        It's good practice, to turn the event listener off, when the activity is
+        paused, so you don't consume power in the background.
+      pre
+        code.Java.
+          @Override
+          protected void onResume() {
+            super.onResume();
+            mSensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL);
+          }
+
+          @Override
+          protected void onPause() {
+            super.onPause();
+            mSensorManager.unregisterListener(this);
+          }
+    section
+      h4 Hardware sensors - Sensor coordinate system
+      div.split-1-3-left
+        img(src="/static/images/sensor-coordinate-system.png")
+      div.split-2-3-right
+        ul
+          li The corrdinate system is baed on the device's natural orientation
+          li It #[em never] changes, not even if the orientation changes
+          li Natural orientation is usually portrait for phones, but is often landscape for tablets
+    section
+      h4 Hardware sensors - Types of sensors
+      p The official Android documentation divides them into:
+      ul
+        li Motion sensors
+        li Position sensors
+        li Environment sensors
+    section
+      h4 Hardware sensors - Adding sensors to the manifest
+      ul
+        li For apps that will be published on the AppStore
+        li Filter out devices that don't have a Sensor that is required for your app
+        li Inform users that not all functionality is available if they lack an optional sensor

@@ -4,7 +4,7 @@
 var express = require('express');
 var router = express.Router();
 
-[1, 2].forEach((current, index) => {
+[1, 2, 3].forEach((current, index) => {
     router.get('/day-' + current, function(req, res, next) {
         res.render('slides/day-' + current, { title: 'MOB: Slides day ' + current });
     });
