@@ -6,6 +6,22 @@ block header
 block content
   section.column.small-12
     h2 Lecture notes: day 3
+    h3 Changing attributes from code
+    p.
+      This is a technique, that will become very useful in this part of the course 
+      (And in general). You will probably want to change the text on the screen at some
+      point, to something that isn't written in the resources (because it's not a static
+      text). From your activity, you can set the text programmatically, which adds a
+      dynamic aspect to your layout. The following code snippet shows how this is done:
+    p
+      pre
+        code.Java.
+          // Find the TextView in our interface
+          TextView textView = (TextView) findViewById(R.id.myTextView);
+          // Make some changes to the View
+          textView.setText("SomeNewText");
+          // "Commit" the changes, by invalidating the view, forcing a re-render
+          textView.invalidate();
     h3 Hardware sensors
     p.
       In order to work with hardware sensors, we need to access the #[tt SensorManager].
@@ -89,6 +105,8 @@ block content
       the screen). #[tt y] goes upwards vertically, and #[tt z] points away from the screen.
     p
       img(src="/static/images/sensor-coordinate-system.png")
+    p You can read more general information about sensors
+      a(href="https://developer.android.com/guide/topics/sensors/sensors_overview.html") here.
     h4 Types of sensors
     p.
       The Android platform supports a lot of sensors. They have been divided into three broad
@@ -98,15 +116,20 @@ block content
       These sensors measure acceleration forces and rotational forces along the three axes.
       This category includes accelerometers (measure velocity), gyroscopes (measure rotation-speed)
       and rotational vector sensors (measure what direction the phone is pointing).
-    
+    p
+      a(href="https://developer.android.com/guide/topics/sensors/sensors_motion.html") Read more
     h5 Position sensors
     p.
       These sensors measure the physical position of a device. These could be: distance to
       a specific object, magnetic field sensors and some orientation sensors.
+    p
+      a(href="https://developer.android.com/guide/topics/sensors/sensors_position.html") Read more
     h5 Environment sensors
     p.
       These sensors measure various environmental parameters, such as ambient air temperature
       and pressure, illumination and humanity.
+    p
+      a(href="https://developer.android.com/guide/topics/sensors/sensors_environment.html") Read more
     h4 Adding sensors to the manifest
     p.
       If your app depends on a specific sensor, then you can filter out any devices, without
@@ -123,5 +146,33 @@ block content
       #[tt android:required] to false instead of true.
   section.column.small-12
     h2 Exercises
+    h4 Exercise 1
+    p.
+      Make an app that sets the text of some textView programmatically
+    h4 Exercise 2
+    p.
+      Make an app that shows the temperature in the room, the illuminance, the air 
+      pressure and the humidity.
+    h4 Exercise 3
+    p.
+      Consider what the difference between the 
+      #[a(href="https://developer.android.com/guide/topics/sensors/sensors_position.html#sensors-pos-geomrot") Geomagnetic Rotation Vector],
+      #[a(href="https://developer.android.com/guide/topics/sensors/sensors_position.html#sensors-pos-gamerot") Game Rotation Vector],
+      and the
+      #[a(href="https://developer.android.com/guide/topics/sensors/sensors_motion.html#sensors-motion-rotate") Rotation Vector]
+      is.
+    h4 Exercise 4
+    p.
+      Make an app that indicates what direction the user is pointed (through graphics, text, color or anything else)
+    h4 Exercise 5
+    p.
+      Make an app the shows how fast you are accelerating (either along just one axis, or along all 3 axesh4 Exercise 5
+    h4 Exercise 6
+    p.
+      Can you make an app that shows how fast you are walking?
+      
+    
   section.column.small-12
     h2 Hand-in
+    p.callout.warning.
+      More information soon
