@@ -30,6 +30,18 @@ block content
             private float mPieStart;
             private float mPieEnd;
 
+            public void setPieStart(float start) {
+                mPieStart = start;
+            }
+
+            public void setPieEnd(float end) {
+                mPieEnd = end;
+            }
+
+            public void setPieText(String text) {
+                mText = text;
+            }
+
 
             public PieChart(Context context, AttributeSet attrs) {
                 super(context, attrs);
@@ -66,12 +78,12 @@ block content
                 mPiePaint1 = new Paint(Paint.ANTI_ALIAS_FLAG);
                 mPiePaint1.setStyle(Paint.Style.FILL);
                 mPiePaint1.setTextSize(mTextHeight);
-                mPiePaint1.setColor(Color.LTGRAY);
+                mPiePaint1.setColor(Color.MAGENTA);
 
                 mPiePaint2 = new Paint(Paint.ANTI_ALIAS_FLAG);
                 mPiePaint2.setStyle(Paint.Style.FILL);
                 mPiePaint2.setTextSize(mTextHeight);
-                mPiePaint2.setColor(Color.MAGENTA);
+                mPiePaint2.setColor(Color.LTGRAY);
             }
 
             @Override
@@ -105,18 +117,23 @@ block content
 
                 float textWidth = mTextPaint.measureText(mText);
 
+                float mTrueEnd = mPieEnd - mPieStart;
+                if(mPieStart > mPieEnd) {
+                    mTrueEnd = 360 - (mPieStart - mPieEnd);
+                }
+
                 canvas.drawArc(
                         mPieBounds,
                         mPieStart,
-                        mPieEnd,
+                        mTrueEnd,
                         true,
                         mPiePaint1
                 );
 
                 canvas.drawArc(
                         mPieBounds,
-                        mPieEnd,
-                        360 - (mPieEnd - mPieStart),
+                        (mPieStart + mTrueEnd) % 360,
+                        (360 - mTrueEnd),
                         true,
                         mPiePaint2
                 );
@@ -124,4 +141,5 @@ block content
                 canvas.drawText(mText, centerX - textWidth / 2, height, mTextPaint);
             }
         }
+        
         
