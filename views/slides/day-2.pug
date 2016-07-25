@@ -200,13 +200,13 @@ block content
               mPiePaint1 = new Paint(Paint.ANTI_ALIAS_FLAG);
               mPiePaint1.setStyle(Paint.Style.FILL);
               mPiePaint1.setTextSize(mTextHeight);
-              mPiePaint1.setColor(Color.LTGRAY);
-  
-                // Repeat for the other pie
-                mPiePaint2 = new Paint(Paint.ANTI_ALIAS_FLAG);
-                mPiePaint2.setStyle(Paint.Style.FILL);
-                mPiePaint2.setTextSize(mTextHeight);
-                mPiePaint2.setColor(Color.MAGENTA);
+              mPiePaint1.setColor(Color.MAGENTA);
+
+              // Repeat for the other pie
+              mPiePaint2 = new Paint(Paint.ANTI_ALIAS_FLAG);
+              mPiePaint2.setStyle(Paint.Style.FILL);
+              mPiePaint2.setTextSize(mTextHeight);
+              mPiePaint2.setColor(Color.LTGRAY);
           }
     section
       h4 Custom drawing - onDraw
@@ -219,13 +219,22 @@ block content
               int height = getMeasuredHeight();
               int width = getMeasuredWidth();
 
+              int centerX = width / 2;
+
+              float textWidth = mTextPaint.measureText(mText);
+
+              float mTrueEnd = mPieEnd - mPieStart;
+              if(mPieStart > mPieEnd) {
+                  mTrueEnd = 360 - (mPieStart - mPieEnd);
+              }
+
               // drawArc takes 5 arguments. The bounding rectangle of the arc, the startAngle, the sweepAngle (which
               // is how much to sweep from the startAngle), a boolean that says whether the fill should join at the
               // center, and finally the paint for the arc.
               canvas.drawArc(
                       mPieBounds,
                       mPieStart,
-                      mPieEnd,
+                      mTrueEnd,
                       true,
                       mPiePaint1
               );
@@ -233,15 +242,12 @@ block content
               // Draw the other arc
               canvas.drawArc(
                       mPieBounds,
-                      mPieEnd,
-                      360 - (mPieEnd - mPieStart),
+                      (mPieStart + mTrueEnd) % 360,
+                      (360 - mTrueEnd),
                       true,
                       mPiePaint2
               );
 
-              float textWidth = mTextPaint.measureText(mText);
-              // Compute the center of the View
-              int centerX = width / 2;
               // Draw the text at the bottom of the View, centered horizontally
               canvas.drawText(mText, centerX - textWidth / 2, height, mTextPaint);
           }
@@ -252,16 +258,16 @@ block content
           @Override
           protected void onSizeChanged(int w, int h, int oldw, int oldh) {
               super.onSizeChanged(w, h, oldw, oldh);
-
+          
               // Make sure that there is room for the text at the bottom
-              int pieHeight = h - (int)mTextHeight;
+              int pieHeight = h - (int)mTextPaint.getTextSize();
 
               // Compute the maximum pie diameter
-              int maxDiameter = Math.min(w, pieHeight);
+              int maxSize = Math.min(w, pieHeight);
 
               int centerX = w / 2;
               int centerY = pieHeight / 2;
-              int radius = maxDiameter / 2;
+              int radius = maxSize / 2;
 
               mPieBounds = new RectF(
                       centerX - radius,
