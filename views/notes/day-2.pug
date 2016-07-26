@@ -2,7 +2,7 @@ extends layout
 
 block header
   h2 Course page for: #[strong Mobile Applications]
-  
+
 block content
   section.column.small-12
     h2 Lecture notes: day 2
@@ -51,13 +51,13 @@ block content
     p.
       Sometimes, you might want to choose a resource based on some qualifier. E.g. you might want to have one
       layout in portrait mode, and one layout in landscape mode. You can implement these two layouts without
-      any hassle, by simply creating 2 layout files, and placing one in #[tt res/layout-port] and one in 
+      any hassle, by simply creating 2 layout files, and placing one in #[tt res/layout-port] and one in
       #[tt res/layout-land]. You can read more about providing resources
       #[a(href="https://developer.android.com/guide/topics/resources/providing-resources.html") here].
     div.callout.warning
       p.
-        The qualifiers: small, medium, large and x-large is not the recommended way of declaring qualified 
-        screen sizes anymore, read more 
+        The qualifiers: small, medium, large and x-large is not the recommended way of declaring qualified
+        screen sizes anymore, read more
         #[a(href="https://developer.android.com/guide/practices/screens_support.html#DeclaringTabletLayouts") here].
     h4 Accessing resources
     p.
@@ -91,7 +91,7 @@ block content
             &lt;fragment android:name="com.example.android.fragments.ArticleFragment"
                       android:id="@+id/article_fragment"
                       android:layout_weight="2"
-                      android:layout_width="0dp"
+                      android:layout_width="match_parent"
                       android:layout_height="match_parent" /&gt;
 
         &lt;/LinearLayout&gt;
@@ -263,9 +263,9 @@ block content
         code.Java.
           public PieChart(Context context, AttributeSet attrs) {
               super(context, attrs);
-          
+
               // Read attributes from the TypedArray
-  
+
               init();
           }
     p.
@@ -277,19 +277,19 @@ block content
               // Used ANTI_ALIAS_FLAG to avoid jagged edges on the text
               mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
               mTextPaint.setColor(Color.GREEN);
-  
+
               if (mTextHeight == 0) {
                   mTextHeight = mTextPaint.getTextSize();
               } else {
                   mTextPaint.setTextSize(mTextHeight);
               }
-  
+
               // Setup the Paint for one of the pies
               mPiePaint1 = new Paint(Paint.ANTI_ALIAS_FLAG);
               mPiePaint1.setStyle(Paint.Style.FILL);
               mPiePaint1.setTextSize(mTextHeight);
               mPiePaint1.setColor(Color.LTGRAY);
-  
+
               // Repeat for the other pie
               mPiePaint2 = new Paint(Paint.ANTI_ALIAS_FLAG);
               mPiePaint2.setStyle(Paint.Style.FILL);
@@ -300,23 +300,23 @@ block content
       Whenever the View is resized, we need to adapt to the new size. In our case, we want the pie-chart to always
       form a proper circle (no ellipsis). Therefore, we need to make sure it has the same width as height. We can
       make sure that this is the case, by adapting to new sizes in the #[tt onSizeChanged] event:
-    p 
+    p
       pre
         code.Java.
           @Override
           protected void onSizeChanged(int w, int h, int oldw, int oldh) {
               super.onSizeChanged(w, h, oldw, oldh);
-  
+
               // Make sure that there is room for the text at the bottom
               int pieHeight = h - (int)mTextPaint.getTextSize();
-              
+
               // Compute the maximum pie diameter
               int maxDiameter = Math.min(w, pieHeight);
-  
+
               int centerX = w / 2;
               int centerY = pieHeight / 2;
               int radius = maxDiameter / 2;
-  
+
               mPieBounds = new RectF(
                       centerX - radius,
                       centerY - radius,
@@ -325,18 +325,18 @@ block content
               );
           }
     p.
-      Finally, we need to render the pie-chart. Our pie-chart is very simple, and it only supports two slices of the 
-      pie. So we can simply call #[tt drawArc] twice, where the second call is simply the rest of the pie. 
+      Finally, we need to render the pie-chart. Our pie-chart is very simple, and it only supports two slices of the
+      pie. So we can simply call #[tt drawArc] twice, where the second call is simply the rest of the pie.
     p
       pre
         code.Java.
           @Override
           protected void onDraw(Canvas canvas) {
               super.onDraw(canvas);
-  
+
               int height = getMeasuredHeight();
               int width = getMeasuredWidth();
-  
+
               // drawArc takes 5 arguments. The bounding rectangle of the arc, the startAngle, the sweepAngle (which
               // is how much to sweep from the startAngle), a boolean that says whether the fill should join at the
               // center, and finally the paint for the arc.
@@ -347,7 +347,7 @@ block content
                       true,
                       mPiePaint1
               );
-  
+
               // Draw the other arc
               canvas.drawArc(
                       mPieBounds,
@@ -356,14 +356,14 @@ block content
                       true,
                       mPiePaint2
               );
-          
+
               float textWidth = mTextPaint.measureText(mText);
               // Compute the center of the View
               int centerX = width / 2;
               // Draw the text at the bottom of the View, centered horizontally
               canvas.drawText(mText, centerX - textWidth / 2, height, mTextPaint);
           }
-    p. 
+    p.
       The result is a simple pie-chart control, that can be included in any layout as follows:
     p
       pre
@@ -379,7 +379,7 @@ block content
               android:paddingRight="@dimen/activity_horizontal_margin"
               android:paddingTop="@dimen/activity_vertical_margin"
               tools:context="com.example.lukas.myapplication.MainActivity"&gt;
-  
+
               &lt;com.example.lukas.myapplication.PieChart
                   custom:labelPosition="left"
                   custom:showText="true"
@@ -388,7 +388,7 @@ block content
                   custom:text="Foo"
                   custom:pieStart="70"
                   custom:pieEnd="180" /&gt;
-  
+
           &lt;/FrameLayout&gt;
     p.
       The result can be seen below, notice how it adapts to both portrait and landscape view, and makes sure that the
@@ -398,7 +398,7 @@ block content
         img(src="/static/images/pie-chart-port.png")
       div.column.medium-8
         img(src="/static/images/pie-chart-land.png")
-    p The full code for this example is available here. 
+    p The full code for this example is available here.
       ul
         li
           a(href="/notes/code-example-pie-chart") PieChart.java
@@ -411,7 +411,7 @@ block content
     h4 Exercise 1
     p.
       Create two layouts, one to render the app when the device is in portrait mode, and one to render the app when
-      the device is in landscape mode. Use the qualifiers, so that Android chooses the correct layout for you. Try 
+      the device is in landscape mode. Use the qualifiers, so that Android chooses the correct layout for you. Try
       doing it for different screen densities as well.
     h4 Exercise 2
     p.
@@ -421,7 +421,7 @@ block content
       Create a fragment that renders some UI, and insert it into your main activity's layout.
     h4 Exercise 4
     p.
-      Create two fragments integrate them into the main layout in a way that make sense in landscape mode, but not 
+      Create two fragments integrate them into the main layout in a way that make sense in landscape mode, but not
       in portrait mode. It could, for example, be that you have a sidebar and a content view. Like this:
     div.row
       div.column.medium-4
@@ -429,7 +429,7 @@ block content
       div.column.medium-8
         img(src="/static/images/fragment-sidebar-land.png")
     p.
-      Then utilize the technique from Exercise 1, to restructure the layout in a meaningful way. You might want to have 
+      Then utilize the technique from Exercise 1, to restructure the layout in a meaningful way. You might want to have
       the sidebar below the content.
     h4 Exercise 5
     p.
