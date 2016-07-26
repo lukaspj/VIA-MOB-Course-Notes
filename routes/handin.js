@@ -34,11 +34,12 @@ router.post('/:handinNr', upload.single('handinPackage'), function(req, res, nex
   }
   var tryRename = (j) => {
     try {
+      var stats = fs.statSync(handinFolder + j + "-" + req.file.originalname);
+      tryRename(++j);
+    } catch (e) {
       fs.writeFileSync(handinFolder + j + "-" + req.file.originalname, req.file.buffer);
       console.log("[HandIn] : " + req.body.student + " uploaded file: " + j + "-" + req.file.originalname);
       res.redirect('back');
-    } catch (e) {
-      tryRename(++j);
     }
   }
   tryRename(0);
