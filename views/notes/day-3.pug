@@ -163,16 +163,29 @@ block content
       is.
     h4 Exercise 4
     p.
-      Make an app that indicates what direction the user is pointed (through graphics, text, color or anything else)
+      Make an app the shows how fast you are accelerating (either along just one axis, or along all 3 axes)
     h4 Exercise 5
     p.
-      Make an app the shows how fast you are accelerating (either along just one axis, or along all 3 axesh4 Exercise 5
-    h4 Exercise 6
-    p.
       Can you make an app that shows how fast you are walking?
-      
+    
     
   section.column.small-12
     h2 Hand-in
+    p.
+      Make a compass app, that shows the user which direction the phone is pointing, as well as showing the 
+      humidity in the top right corner. The app should be fully interactive and update in realtime.
     p.callout.warning.
-      More information soon
+      Deadline: Friday #[strong (week 1)] 14:00 (after class)
+    div.callout
+      p Hand-in submission for hand-in 2 (Hardware Sensors)
+      p. 
+        You should hand in the whole directory, and all the files in your project, 
+        as a compressed archive (such as .zip).
+      form(action="/handin/2" method="post" enctype="multipart/form-data")
+        label(for="handinPackage") Upload your solution:
+        input(type="file" id="handinPackage" name="handinPackage")
+        label(for="student"). 
+          Type your First-name here, using 
+          #[strong only letters from the english alphabet (a-z) and no accents].
+        input(type="text" id="student" name="student" pattern="[a-zA-Z]*")
+        input(type="submit")
