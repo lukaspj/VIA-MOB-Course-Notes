@@ -221,3 +221,7 @@ block content
           td -3
           td For an unacceptable performance
           td F
+    form(action="/handin/1" method="post" enctype="multipart/form-data")
+      input(type="file" name="handinPackage")
+      input(type="text" name="student")
+      input(type="submit")

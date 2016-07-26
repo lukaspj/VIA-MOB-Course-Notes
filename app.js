@@ -21,11 +21,13 @@ app.set('view engine', 'pug');
 var routes = require('./routes/index');
 var slides = require('./routes/slides');
 var notes = require('./routes/notes');
+var handin = require('./routes/handin');
 
 // Set the routes
 app.use('/', routes);
 app.use('/slides', slides);
 app.use('/notes', notes);
+app.use('/handin', handin);
 
 // Expose files in 'public' folder to the public on the path /static
 app.use('/static', express.static(path.join(__dirname, 'public')));

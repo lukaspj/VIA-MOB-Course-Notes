@@ -1,0 +1,183 @@
+extends layout
+
+block header
+  h2 Course page for: #[strong Mobile Applications]
+
+block content
+  section.column.small-12
+    h2 Lecture notes: day 3
+    h3 Changing attributes from code
+    p.
+      This is a technique, that will become very useful in this part of the course
+      (And in general). You will probably want to change the text on the screen at some
+      point, to something that isn't written in the resources (because it's not a static
+      text). From your activity, you can set the text programmatically, which adds a
+      dynamic aspect to your layout. The following code snippet shows how this is done:
+    p
+      pre
+        code.Java.
+          // Find the TextView in our interface
+          TextView textView = (TextView) findViewById(R.id.myTextView);
+          // Make some changes to the View
+          textView.setText("SomeNewText");
+          // "Commit" the changes, by invalidating the view, forcing a re-render
+          textView.invalidate();
+    h3 Hardware sensors
+    p.
+      In order to work with hardware sensors, we need to access the #[tt SensorManager].
+      It is easily accessed through the #[tt getSystemService] method like so:
+    p
+      pre
+        code.Java.
+          private SensorManager mSensorManager;
+          ...
+          mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+    p.
+      When retrieved, this sensor manager can be used to achieve all the sensors we want.
+      In order to get all available sensors on the device, write the following code:
+    p
+      pre
+        code.Java.
+          List<Sensor> deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
+    p.
+      Or, to simply retrieve a magnetometer and making sure that it's available:
+    p
+      pre
+        code.Java.
+          private SensorManager mSensorManager;
+          ...
+          mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+          if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) != null){
+            // Success! There's a magnetometer.
+          }
+          else {
+            // Failure! No magnetometer.
+          }
+
+    p.
+      We can listen to events from the sensor (i.e. the data-feed) by making our activity
+      implement the SensorEventListener interface:
+    p
+      pre
+        code.Java.
+          public class SensorActivity extends Activity implements SensorEventListener
+    p.
+      In the #[tt onResume] method, we can then register our activity as a listener, using the
+      #[tt registerListener] method. And unregister it in the #[tt onPause] method (such
+      that our activity only gets event from the sensor when it is active.)
+    p
+     pre
+      code.Java.
+        @Override
+        protected void onResume() {
+          super.onResume();
+          mSensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL);
+        }
+
+        @Override
+        protected void onPause() {
+          super.onPause();
+          mSensorManager.unregisterListener(this);
+        }
+    p.
+      You can then receive the data with the following two methods:
+    p
+      pre
+        code.Java.
+          @Override
+          public final void onAccuracyChanged(Sensor sensor, int accuracy) {
+            // Do something here if sensor accuracy changes.
+          }
+
+          @Override
+          public final void onSensorChanged(SensorEvent event) {
+            // The light sensor returns a single value.
+            // Many sensors return 3 values, one for each axis.
+            float lux = event.values[0];
+            // Do something with this sensor value.
+          }
+    h4 Sensor coordinate system
+    p.
+      The sensors all use the same basic coordinate system, which is relative to the
+      devices natural orientation, which might be portrait for some devices, and landscape
+      for others. The most important thing to note, is that the coordinate system
+      #[em never changes]. #[tt x] goes horizontally from left to right (when looking at
+      the screen). #[tt y] goes upwards vertically, and #[tt z] points away from the screen.
+    p
+      img(src="/static/images/sensor-coordinate-system.png")
+    p You can read more general information about sensors
+      a(href="https://developer.android.com/guide/topics/sensors/sensors_overview.html") here.
+    h4 Types of sensors
+    p.
+      The Android platform supports a lot of sensors. They have been divided into three broad
+      categories that measure different types of things.
+    h5 Motion sensors
+    p.
+      These sensors measure acceleration forces and rotational forces along the three axes.
+      This category includes accelerometers (measure velocity), gyroscopes (measure rotation-speed)
+      and rotational vector sensors (measure what direction the phone is pointing).
+    p
+      a(href="https://developer.android.com/guide/topics/sensors/sensors_motion.html") Read more
+    h5 Position sensors
+    p.
+      These sensors measure the physical position of a device. These could be: distance to
+      a specific object, magnetic field sensors and some orientation sensors.
+    p
+      a(href="https://developer.android.com/guide/topics/sensors/sensors_position.html") Read more
+    h5 Environment sensors
+    p.
+      These sensors measure various environmental parameters, such as ambient air temperature
+      and pressure, illumination and humanity.
+    p
+      a(href="https://developer.android.com/guide/topics/sensors/sensors_environment.html") Read more
+    h4 Adding sensors to the manifest
+    p.
+      If your app depends on a specific sensor, then you can filter out any devices, without
+      that sensor,that tries to download your app. Simply add a #[tt uses-feature] element
+      in your manifest file. The following example filters devices that do not have an
+      accelerometer:
+    p
+      pre
+        code.Xml.
+          &lt;uses-feature android:name="android.hardware.sensor.accelerometer"
+                        android:required="true" /&gt;
+    p.
+      If your app uses an accelerometer, but does not require it to run you should set
+      #[tt android:required] to false instead of true.
+  section.column.small-12
+    h2 Exercises
+    h4 Exercise 1
+    p.
+      Make an app that sets the text of some textView programmatically
+    h4 Exercise 2
+    p.
+      Make an app that shows the temperature in the room, the illuminance, the air
+      pressure and the humidity.
+    h4 Exercise 3
+    p.
+      Consider what the difference between the
+      #[a(href="https://developer.android.com/guide/topics/sensors/sensors_position.html#sensors-pos-geomrot") Geomagnetic Rotation Vector],
+      #[a(href="https://developer.android.com/guide/topics/sensors/sensors_position.html#sensors-pos-gamerot") Game Rotation Vector],
+      and the
+      #[a(href="https://developer.android.com/guide/topics/sensors/sensors_motion.html#sensors-motion-rotate") Rotation Vector]
+      is.
+    h4 Exercise 4
+    p.
+      Make an app that indicates what direction the user is pointed (through graphics, text, color or anything else)
+    h4 Exercise 5
+    p.
+      Make an app the shows how fast you are accelerating (either along just one axis, or along all 3 axesh4 Exercise 5
+    h4 Exercise 6
+    p.
+      Can you make an app that shows how fast you are walking?
+
+
+  section.column.small-12
+    h2 Hand-in
+    p.callout.warning.
+      More information soon
+    div
+      form(action="/handin/1" method="post" enctype="multipart/form-data")
+        input(type="file" name="handinPackage")
+        input(type="text" name="student")
+        input(type="submit")
