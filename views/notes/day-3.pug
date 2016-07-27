@@ -8,7 +8,7 @@ block content
     h2 Lecture notes: day 3
     h3 Changing attributes from code
     p.
-      This is a technique, that will become very useful in this part of the course 
+      This is a technique, that will become very useful in this part of the course
       (And in general). You will probably want to change the text on the screen at some
       point, to something that isn't written in the resources (because it's not a static
       text). From your activity, you can set the text programmatically, which adds a
@@ -53,9 +53,9 @@ block content
           else {
             // Failure! No magnetometer.
           }
-    
+
     p.
-      We can listen to events from the sensor (i.e. the data-feed) by making our activity 
+      We can listen to events from the sensor (i.e. the data-feed) by making our activity
       implement the SensorEventListener interface:
     p
       pre
@@ -98,14 +98,14 @@ block content
           }
     h4 Sensor coordinate system
     p.
-      The sensors all use the same basic coordinate system, which is relative to the 
-      devices natural orientation, which might be portrait for some devices, and landscape 
-      for others. The most important thing to note, is that the coordinate system 
-      #[em never changes]. #[tt x] goes horizontally from left to right (when looking at 
+      The sensors all use the same basic coordinate system, which is relative to the
+      devices natural orientation, which might be portrait for some devices, and landscape
+      for others. The most important thing to note, is that the coordinate system
+      #[em never changes]. #[tt x] goes horizontally from left to right (when looking at
       the screen). #[tt y] goes upwards vertically, and #[tt z] points away from the screen.
     p
       img(src="/static/images/sensor-coordinate-system.png")
-    p You can read more general information about sensors 
+    p You can read more general information about sensors
       a(href="https://developer.android.com/guide/topics/sensors/sensors_overview.html") here.
     h4 Types of sensors
     p.
@@ -133,8 +133,8 @@ block content
     h4 Adding sensors to the manifest
     p.
       If your app depends on a specific sensor, then you can filter out any devices, without
-      that sensor,that tries to download your app. Simply add a #[tt uses-feature] element 
-      in your manifest file. The following example filters devices that do not have an 
+      that sensor,that tries to download your app. Simply add a #[tt uses-feature] element
+      in your manifest file. The following example filters devices that do not have an
       accelerometer:
     p
       pre
@@ -151,11 +151,11 @@ block content
       Make an app that sets the text of some textView programmatically
     h4 Exercise 2
     p.
-      Make an app that shows the temperature in the room, the illuminance, the air 
+      Make an app that shows the temperature in the room, the illuminance, the air
       pressure and the humidity.
     h4 Exercise 3
     p.
-      Consider what the difference between the 
+      Consider what the difference between the
       #[a(href="https://developer.android.com/guide/topics/sensors/sensors_position.html#sensors-pos-geomrot") Geomagnetic Rotation Vector],
       #[a(href="https://developer.android.com/guide/topics/sensors/sensors_position.html#sensors-pos-gamerot") Game Rotation Vector],
       and the
@@ -167,25 +167,25 @@ block content
     h4 Exercise 5
     p.
       Can you make an app that shows how fast you are walking?
-    
-    
+
+
   section.column.small-12
     h2 Hand-in
     p.
-      Make a compass app, that shows the user which direction the phone is pointing, as well as showing the 
+      Make a compass app, that shows the user which direction north is, as well as showing the
       humidity in the top right corner. The app should be fully interactive and update in realtime.
     p.callout.warning.
       Deadline: Friday #[strong (week 1)] 14:00 (after class)
     div.callout
       p Hand-in submission for hand-in 2 (Hardware Sensors)
-      p. 
-        You should hand in the whole directory, and all the files in your project, 
+      p.
+        You should hand in the whole directory, and all the files in your project,
         as a compressed archive (such as .zip).
       form(action="/handin/2" method="post" enctype="multipart/form-data")
         label(for="handinPackage") Upload your solution:
         input(type="file" id="handinPackage" name="handinPackage")
-        label(for="student"). 
-          Type your First-name here, using 
+        label(for="student").
+          Type your First-name here, using
           #[strong only letters from the english alphabet (a-z) and no accents].
         input(type="text" id="student" name="student" pattern="[a-zA-Z]*")
         input(type="submit")
