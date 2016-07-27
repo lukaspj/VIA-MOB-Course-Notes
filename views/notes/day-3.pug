@@ -145,9 +145,14 @@ block content
       If your app uses an accelerometer, but does not require it to run you should set
       #[tt android:required] to false instead of true.
     h4 Handling multiple sensors in the #[tt onSensorChanged] event
+    p.
+      Since all sensors, send data to the same method, i.e. the
+      #[tt onSensorChanged] event, we need to detect where the data originates
+      from. We can figure the origin out, using the #[tt event]'s sensor
+      property, and simply case on what type that sensor is like so:
     p
       pre
-        code.XML.
+        code.Java.
           @Override
           public void onSensorChanged(SensorEvent event) {
               switch (event.sensor.getType()) {
