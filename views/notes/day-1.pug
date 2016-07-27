@@ -353,6 +353,12 @@ block content
     h5 Using only LinearLayouts
     p
       img(src="/static/images/handout-layout-tp.png")
+    div.callout
+      p Hand-in submission for hand-in 1
+      p.
+        You should hand in the whole directory, and all the files in your project,
+        as a compressed archive (such as .zip).
+      p.callout
         form(action="/handin/1" method="post" enctype="multipart/form-data")
           label(for="handinPackage") Upload your solution:
           input(type="file" id="handinPackage" name="handinPackage")
