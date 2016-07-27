@@ -6,7 +6,6 @@ var router = express.Router();
 var fs = require("fs");
 var multer = require('multer');
 var upload = multer();
-var Zip = require('node-zip');
 var Zip = require('express-zip');
 
 /* GET home page. */
@@ -59,6 +58,20 @@ router.get("/get-all/:handinNr", function(req, res, next) {
     });
   });
   res.zip(zipFiles, "Handin-" + req.params.handinNr + ".zip");
+});
+
+router.get("/list-all/:handinNr", function(req, res, next) {
+  var dirs = fs.readdirSync(__dirname + "/../hand-ins/" + req.params.handinNr);
+  var resultHTML = "<p>Total students with hand-ins: <strong>" + dirs.length +"</strong></p>";
+  dirs.forEach((dir, index) => {
+    resultHTML += "<p><strong>" + dir + "</strong><ul>";
+    var files = fs.readdirSync(__dirname + "/../hand-ins/" + req.params.handinNr + "/" + dir);
+    files.forEach((file,index) => {
+      resultHTML += "<li>" + file + "</li>";
+    });
+    resultHTML += "</ul></p>";
+  });
+  res.send(resultHTML);
 });
 
 module.exports = router;
