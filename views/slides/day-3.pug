@@ -23,7 +23,8 @@ block content
   section
     section
       h2 Hardware sensors
-      i The SensorManager
+      p
+        i The SensorManager
       ul
         li Retrieve the SensorManager
         li Get Sensor(s)
@@ -40,7 +41,7 @@ block content
         code.Java.
           List deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
       p Get a specific sensor:
-      pre 
+      pre
         code.Java.
           Sensor sensor = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
           if (sensor != null){
@@ -52,7 +53,7 @@ block content
     section
       h4 Hardware sensors - SensorEventListener interface
       p.
-        You should feed the Sensor a class that implements the SensorEventListener 
+        You should feed the Sensor a class that implements the SensorEventListener
         interface.
       pre
         code.Java.
