@@ -144,6 +144,22 @@ block content
     p.
       If your app uses an accelerometer, but does not require it to run you should set
       #[tt android:required] to false instead of true.
+    h4 Handling multiple sensors in the #[tt onSensorChanged] event
+    p
+      pre
+        code.XML.
+          @Override
+          public void onSensorChanged(SensorEvent event) {
+              switch (event.sensor.getType()) {
+                  case Sensor.TYPE_ACCELEROMETER:
+                      // Handle accelerometer data
+                      break;
+                  case Sensor.TYPE_LIGHT:
+                      // Handle light data
+                      break;
+                  //etc.
+              }
+          }
   section.column.small-12
     h2 Exercises
     h4 Exercise 1
