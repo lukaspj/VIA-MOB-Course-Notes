@@ -7,6 +7,7 @@ var fs = require("fs");
 var multer = require('multer');
 var upload = multer();
 var Zip = require('node-zip');
+var Zip = require('express-zip');
 
 /* GET home page. */
 router.post('/:handinNr', upload.single('handinPackage'), function(req, res, next) {
@@ -41,26 +42,23 @@ router.post('/:handinNr', upload.single('handinPackage'), function(req, res, nex
       console.log("[HandIn] : " + req.body.student + " uploaded file: " + j + "-" + req.file.originalname);
       res.redirect('back');
     }
-  }
+  };
   tryRename(0);
 });
 
 router.get("/get-all/:handinNr", function(req, res, next) {
-  var zip = new Zip();
+  var zipFiles = [];
   var dirs = fs.readdirSync(__dirname + "/../hand-ins/" + req.params.handinNr);
   dirs.forEach((dir, index) => {
     var files = fs.readdirSync(__dirname + "/../hand-ins/" + req.params.handinNr + "/" + dir);
     files.forEach((file,index) => {
-      var content = fs.readFileSync(__dirname + "/../hand-ins/" + req.params.handinNr + "/" + dir + "/" + file);
-      zip.file(dir + "/" + file, content);
+      zipFiles.push({
+        path: __dirname + "/../hand-ins/" + req.params.handinNr + "/" + dir + "/" + file,
+        name: dir + "/" + file
+      });
     });
   });
-  zip.file(__dirname + "/../hand-ins/" + req.params.handinNr);
-  var data = zip.generate({base64:false,compression:'DEFLATE'});
-  res.set('Content-Type', 'application/zip')
-  res.set('Content-Disposition', 'attachment; filename=handin-' + req.params.handinNr + '.zip');
-  res.set('Content-Length', data.length);
-  res.end(data, 'binary');
+  res.zip(zipFiles, "Handin-" + req.params.handinNr + ".zip");
 });
 
 module.exports = router;
