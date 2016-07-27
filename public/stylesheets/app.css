@@ -17,3 +17,7 @@ body>header {
 .col-literature {
   width: 25%;
 }
+
+img {
+    max-height: 30rem;
+}

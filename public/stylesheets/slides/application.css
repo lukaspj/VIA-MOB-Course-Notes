@@ -23,3 +23,7 @@ section .split-2-3-right {
     float: left;
     clear: right;
 }
+
+.reveal section img {
+    max-height: 40rem;
+}

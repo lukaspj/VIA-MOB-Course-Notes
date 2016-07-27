@@ -1,0 +1,177 @@
+extends layout
+
+block content
+  section
+    h2 App-to-app communication
+    i Day 3
+  section
+    h2 Agenda
+    ul
+      li Catching user-interface events
+      li Creating new Activities
+      li Intents
+      li Intent-filters
+      li BroadcastReceivers
+  section
+    h2 Catching user-interface events
+    p Add a method to your Activity
+    pre
+      code.Java.
+        public void showPopUp(View view) {
+          // Do something
+        }
+    pre
+      code.XML.
+        &lt;Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Show PopUp"
+            android:onClick="showPopUp"/&gt;
+  section
+    h2 Creating new Activities
+    p Add a new class:
+    pre
+      code.Java.
+        public class PopUpActivity extends Activity {
+
+            @Override
+            protected void onCreate(Bundle savedInstanceState) {
+                super.onCreate(savedInstanceState);
+                setContentView(R.layout.activity_popup);
+            }
+        }
+    p Add it to the manifest:
+    pre
+      code.XML.
+        &lt;activity android:name=".PopUpActivity" /&gt;
+  section
+    section
+      h2 Intents
+      p Useful for:
+      ul
+        li Starting another activity
+          p startActivity() and startActivityForResult()
+        li Starting a Service
+          p startService()
+        li Delivering a broadcast
+          p sendBroadCast(), sendOrderedBroadcast() and sendStickyBroadcast() #[em (deprecated)]
+    section
+      h4 Intents - Explicit vs Implicit
+      p Two types of events:
+      ul
+        li Explicit
+          p Open a specific Activity to handle the intent
+        li Implicit
+          p Open some Activity that can handle the intent
+    section
+      h4 Explicit Intents - Starting an Activity with an Intent
+      pre
+        code.Java.
+          Intent intent = new Intent(this, PopUpActivity.class);
+          startActivity(intent);
+      p We can add data to the Intent with:
+      pre
+        code.Java.
+          intent.putExtra(POPUP_MESSAGE, "Hello World!");
+    section
+      h4 Explicit Intents - Accessing the intent from an Activity
+      pre
+        code.Java.
+          @Override
+          protected void onCreate(Bundle savedInstanceState) {
+              super.onCreate(savedInstanceState);
+              setContentView(R.layout.activity_popup);
+
+              Intent intent = getIntent();
+              String message = intent.getStringExtra(MainActivity.POPUP_MESSAGE);
+              TextView textView = (TextView)findViewById(R.id.messageView);
+              textView.setText(message);
+              textView.invalidate();
+          }
+    section
+      h4 Implicit Intents - Starting an Activity from another app
+      pre
+        code.Java.
+          Intent mailIntent = new Intent();
+          mailIntent.setAction(Intent.ACTION_SEND);
+          mailIntent.setType("text/html");
+          startActivity(Intent.createChooser(mailIntent, "Send Mail"));
+      p We can send data to the mail client with the putExtra method:
+      pre
+        code.Java.
+          mailIntent.putExtra(Intent.EXTRA_EMAIL, "test@someone.com");
+          mailIntent.putExtra(Intent.EXTRA_SUBJECT, "NEWS");
+          mailIntent.putExtra(Intent.EXTRA_TEXT, "Some mail content");
+  section
+    section
+      h2 Intent-filters
+      ul
+        li Specify what intents a particular Activity can react to
+        li Several filters are possible for a single Activity
+        li Can filter both on the type of the Intent, but also the data that the Intent carries
+    section
+      h4 Intent-filters - A fake mailing Activity
+      pre
+        code.Java.
+          public class FakeMailActivity extends Activity {
+              @Override
+              protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+              }
+          }
+    section
+      h4 Intent-filters - A fake mailing Activity
+      pre
+        code.XML.
+          &lt;activity android:name=".FakeMailActivity"&gt;
+              &lt;intent-filter&gt;
+                  &lt;action android:name="android.intent.action.SEND" /&gt;
+                  &lt;category android:name="android.intent.category.DEFAULT"/&gt;
+                  &lt;data android:mimeType="text/html" /&gt;
+              &lt;/intent-filter&gt;
+          &lt;/activity&gt;
+    section
+      img(src="/static/images/email_chooser.png")
+  section
+    section
+      h2 BroadcastReceivers
+      ul
+        li Broadcasts are system-wide messages
+        li Any app can sign up for a broadcast
+        li There are many broadcasts sent by the Android system
+        li Instead of Activities, use BroadcastReceivers
+    section
+      h4 BroadcastReceivers - Creating a BroadcastReceiver
+      pre
+        code.Java.
+          public class NoPhoneCallsReceiver extends BroadcastReceiver {
+              @Override
+              public void onReceive(Context context, Intent intent) {
+              }
+          }
+    section
+      h4 BroadcastReceivers - Creating a BroadcastReceiver
+      pre
+        code.Xml.
+          &lt;receiver android:name=".NoPhoneCallsReceiver"&gt;
+              &lt;intent-filter&gt;
+                  &lt;action android:name="android.intent.action.NEW_OUTGOING_CALL" /&gt;
+              &lt;/intent-filter&gt;
+          &lt;/receiver&gt;
+    section
+      h4 BroadcastReceivers - Sometimes you need permission
+      pre
+        code.XML.
+          &lt;uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" /&gt;
+    section
+      h4 BroadcastReceivers - Block all the calls!
+      pre
+        code.Java.
+          public class NoPhoneCallsReceiver extends BroadcastReceiver {
+              @Override
+              public void onReceive(Context context, Intent intent) {
+                  setResultData(null);
+              }
+          }
+          
+    

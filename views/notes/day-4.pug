@@ -5,179 +5,287 @@ block header
 
 block content
   section.column.small-12
-    h2 Lecture notes: day 3
-    h3 Changing attributes from code
+    h2 Lecture notes: day 4
     p.
-      This is a technique, that will become very useful in this part of the course
-      (And in general). You will probably want to change the text on the screen at some
-      point, to something that isn't written in the resources (because it's not a static
-      text). From your activity, you can set the text programmatically, which adds a
-      dynamic aspect to your layout. The following code snippet shows how this is done:
+      In the following lecture notes, a #[em component] is defined as described in the 
+      #[a(href="https://developer.android.com/guide/components/fundamentals.html#Components") documentation].
+    h4 Catching user-interface events
+    p.
+      In order to catch an event from the user-interface (such as when something is clicked), you simply have to
+      add a public method to the #[tt Activity], and then add the #[tt onClick] attribute to an element in the 
+      user-interface.
+    p.
+      First, we will look at the method we need to add to the #[tt Activity]. It should return void and take a 
+      #[tt View] as the parameter.
     p
       pre
         code.Java.
-          // Find the TextView in our interface
-          TextView textView = (TextView) findViewById(R.id.myTextView);
-          // Make some changes to the View
-          textView.setText("SomeNewText");
-          // "Commit" the changes, by invalidating the view, forcing a re-render
-          textView.invalidate();
-    h3 Hardware sensors
+          public void showPopUp(View view) {
+            // Do something
+          }
     p.
-      In order to work with hardware sensors, we need to access the #[tt SensorManager].
-      It is easily accessed through the #[tt getSystemService] method like so:
+      To bind the method to an event, simply add the #[tt android:onClick="showPopUp"] attribute to a #[tt View],
+      like this:
+    p
+      pre
+        code.XML.
+          &lt;Button
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Show PopUp"
+              android:onClick="showPopUp"/&gt;
+    p.
+      Now, when the #[tt Button] is pressed, the showPopUp method will be called.
+    h4 Creating a new Activity
+    p.
+      So far you have had your default MainActivity, which Android Studio probably set up for you. In today's
+      lecture, we will look at creating a new Activity, which we can then start using Intents. So, first things
+      first. We should create a new Activity. First, create a new #[tt Java] file, next to the MainActivity.java file 
+      (in the #[tt app/src/main/java/your/package/name/] folder).
+    p.
+      The new Java file, should have a new activity, which extends the "Activity" class, just like the MainActivity.
+      As shown in the following code snippet:
     p
       pre
         code.Java.
-          private SensorManager mSensorManager;
+          package com.example.lukas.myapplication;
+
+          import android.app.Activity;
+          import android.os.Bundle;
+
+          public class PopUpActivity extends Activity {
+
+              @Override
+              protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+                  setContentView(R.layout.activity_popup);
+              }
+          }
+    p.
+      Now, that you have created a new Activity, you have to add it to the manifest. Otherwise the Android system will
+      not be able to find it nor use it. This is very simple, just add the following snippet to the manifest, inside
+      the application tag:
+    p
+      pre
+        code.XML.
+          &lt;activity android:name=".PopUpActivity" /&gt;
+    p.
+      Now you have a new Activity for your app, we will look at how you can start it, right after we look at Intents.
+    h4 Adding permissions
+    p.
+      In case your app needs any permissions, such as the permission to process outgoing calls, you will need to add
+      the permission to the manifest with the uses-permission tag, like so:
+    p
+      pre
+        code.XML.
+          &lt;uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" /&gt;
+    h4 Intents
+    p.
+      An intent, is a message that you can send to request an action from another app component. They can be used
+      in several ways, but they have three primary uses:
+    ul
+      li Starting another activity
+        p.
+          You can start a new instance of an Activity, by passing an Intent to #[tt startActivity()]. If you
+          want to receive a result from the Activity, then use #[tt startActivityForResult()], which will call
+          #[tt onActivityResult] on your Activity when it's done.
+      li Starting a "Service" (a component that runs in the background without an interface)
+        p.
+          You can start a Service to perform some operation with the #[tt startService()] method, we will look at 
+          this later.
+      li Delivering a broadcast
+        p.
+          A broadcast is a message that any app can receive. There are various broadcasts for system events, such as
+          phone calling or device starts charging. You can send a broadcast by passing an Intent to either
+          #[tt sendBroadcast()], #[tt sendOrderedBroadcast()] or #[tt sendStickyBroadcast()] (deprecated)
+        p.
+          An ordinary broadcast cannot be aborted and cannot propagate results. An ordered broadcast however
+          will send the broadCast to all interested BroadcastReceivers, one at a time and allow the result to
+          propagate.
+    a(href="https://developer.android.com/guide/components/intents-filters.html") Read about Intents, and intent filters
+    p.
+      There are two types of intents, the #[strong Explicit intents] and the #[strong Implicit intents].
+      In the explicit intent, you specify exactly which component you want to respond to the intent.
+      As you know the full qualified class-name of the components in your own app, this is typically used
+      for communication inside your own app (like starting a new activity).
+      The implicit intents do not specify a specific component, but instead they declare some general
+      action they want to perform (like "Send Email"), and then components from any app can pitch-in and
+      respond to it.
+    
+    h4 Starting an Activity with an intent
+    p.
+      First, create the new #[tt Intent] object, here we will use an explicit intent, as we want to start a specific 
+      #[Activity] from our application. For the intent to be explicit, we need to explicitly specify the class the
+      #[tt Intent] is to be send to. Then we will simply call #[tt startActivity] method. Example:
+    p
+      pre
+        code.Java.
+          Intent intent = new Intent(this, PopUpActivity.class);
+          startActivity(intent);
+    p.
+      We can send some message with the intent, by using the #[tt putExtra] method which takes a key and a value.
+    p
+      pre
+        code.Java.
+          public static final String POPUP_MESSAGE = "com.example.lukas.myapplication.POPUP_MESSAGE";
           ...
-          mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+          Intent intent = new Intent(this, PopUpActivity.class);
+          intent.putExtra(POPUP_MESSAGE, "Hello World!");
+          startActivity(intent);
+    h5 Accessing the message in the Intent
     p.
-      When retrieved, this sensor manager can be used to achieve all the sensors we want.
-      In order to get all available sensors on the device, write the following code:
+      To access the message stored with #[tt putExtra], we can use the #[tt getIntent] method in the receiving Activity.
+      We can then access the message values using #[tt intent.get(Type)Extra(key)], where "(Type)" should be replaced 
+      with what type of value you are trying to retrieve (such as String, Boolean etc.). Example:
     p
       pre
         code.Java.
-          List<Sensor> deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
-    p.
-      Or, to simply retrieve a magnetometer and making sure that it's available:
-    p
-      pre
-        code.Java.
-          private SensorManager mSensorManager;
-          ...
-          mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-          if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) != null){
-            // Success! There's a magnetometer.
-          }
-          else {
-            // Failure! No magnetometer.
-          }
+          public class PopUpActivity extends Activity {
 
+              @Override
+              protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+                  setContentView(R.layout.activity_popup);
+
+                  Intent intent = getIntent();
+                  String message = intent.getStringExtra(MainActivity.POPUP_MESSAGE);
+                  TextView textView = (TextView)findViewById(R.id.messageView);
+                  textView.setText(message);
+                  textView.invalidate();
+              }
+          }
+    h4 Starting an Activity from another app with an intent
     p.
-      We can listen to events from the sensor (i.e. the data-feed) by making our activity
-      implement the SensorEventListener interface:
+      We can incorporate activities from other apps, if they listen for intents. An example is an email app, we can
+      use the built-in email client (or any other email client) to send an email from our app. We need to use implicit
+      intents for this purpose, since we don't necessarily know the fully qualified class paths to the email client's
+      activity, and we might want the user to choose the mail app that it likes the most.
+    p.
+      In order to create such an implicit intent, we simply create a new intent, set the appropriate #[tt Action]
+      and give it the meta-data needed such that the Activity, receiving the intent can complete the task.
+    p.
+      We will re-use the email example. If we want to send an email from our app, we will use the action 
+      #[tt Intent.ACTION_SEND]. The #[tt ACTION_SEND] action means that we want to send some data.
     p
       pre
         code.Java.
-          public class SensorActivity extends Activity implements SensorEventListener
+          Intent mailIntent = new Intent();
+          mailIntent.setAction(Intent.ACTION_SEND);
     p.
-      In the #[tt onResume] method, we can then register our activity as a listener, using the
-      #[tt registerListener] method. And unregister it in the #[tt onPause] method (such
-      that our activity only gets event from the sensor when it is active.)
-    p
-     pre
-      code.Java.
-        @Override
-        protected void onResume() {
-          super.onResume();
-          mSensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL);
-        }
-
-        @Override
-        protected void onPause() {
-          super.onPause();
-          mSensorManager.unregisterListener(this);
-        }
-    p.
-      You can then receive the data with the following two methods:
+      Now, that we have an Intent with the appropriate #[tt Action], we need to set the meta-data for the intent
+      such that the receiving Activity, knows what to do with the Intent. If you're sending a mail, then you
+      need to set the type of the intent to "test/html" and you can provide email address, subject and content
+      for the email, like so:
     p
       pre
         code.Java.
-          @Override
-          public final void onAccuracyChanged(Sensor sensor, int accuracy) {
-            // Do something here if sensor accuracy changes.
+          public void sendMail(View view) {
+              Intent mailIntent = new Intent();
+              mailIntent.setAction(Intent.ACTION_SEND);
+              mailIntent.setType("text/html");
+              mailIntent.putExtra(Intent.EXTRA_EMAIL, "test@someone.com");
+              mailIntent.putExtra(Intent.EXTRA_SUBJECT, "NEWS");
+              mailIntent.putExtra(Intent.EXTRA_TEXT, "Some mail content");
+              startActivity(Intent.createChooser(mailIntent, "Send Mail"));
           }
-
-          @Override
-          public final void onSensorChanged(SensorEvent event) {
-            // The light sensor returns a single value.
-            // Many sensors return 3 values, one for each axis.
-            float lux = event.values[0];
-            // Do something with this sensor value.
+    p.
+      This is just one example of what you can do with the framework actions. To see all the different available 
+      Actions, look at the reference for the 
+      #[a(href="https://developer.android.com/reference/android/content/Intent.html") Intent].
+    h4 Receiving an implicit intent from any app
+    p.
+      To receive an implicit intent, you need to create the Activity that should receive the intent, for example it 
+      it could be an Activity, which catches the "Send" intent, but instead of sending it, it actually display the mail.
+    p.
+      First, you have to create the Activity. Just make it an empty Activity like this:
+    p
+      pre
+        code.Java.
+          public class FakeMailActivity extends Activity {
+              @Override
+              protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+              }
           }
-    h4 Sensor coordinate system
     p.
-      The sensors all use the same basic coordinate system, which is relative to the
-      devices natural orientation, which might be portrait for some devices, and landscape
-      for others. The most important thing to note, is that the coordinate system
-      #[em never changes]. #[tt x] goes horizontally from left to right (when looking at
-      the screen). #[tt y] goes upwards vertically, and #[tt z] points away from the screen.
-    p
-      img(src="/static/images/sensor-coordinate-system.png")
-    p You can read more general information about sensors
-      a(href="https://developer.android.com/guide/topics/sensors/sensors_overview.html") here.
-    h4 Types of sensors
-    p.
-      The Android platform supports a lot of sensors. They have been divided into three broad
-      categories that measure different types of things.
-    h5 Motion sensors
-    p.
-      These sensors measure acceleration forces and rotational forces along the three axes.
-      This category includes accelerometers (measure velocity), gyroscopes (measure rotation-speed)
-      and rotational vector sensors (measure what direction the phone is pointing).
-    p
-      a(href="https://developer.android.com/guide/topics/sensors/sensors_motion.html") Read more
-    h5 Position sensors
-    p.
-      These sensors measure the physical position of a device. These could be: distance to
-      a specific object, magnetic field sensors and some orientation sensors.
-    p
-      a(href="https://developer.android.com/guide/topics/sensors/sensors_position.html") Read more
-    h5 Environment sensors
-    p.
-      These sensors measure various environmental parameters, such as ambient air temperature
-      and pressure, illumination and humanity.
-    p
-      a(href="https://developer.android.com/guide/topics/sensors/sensors_environment.html") Read more
-    h4 Adding sensors to the manifest
-    p.
-      If your app depends on a specific sensor, then you can filter out any devices, without
-      that sensor,that tries to download your app. Simply add a #[tt uses-feature] element
-      in your manifest file. The following example filters devices that do not have an
-      accelerometer:
+      Now, add the new Activity to the manifest, and give it a filter that catches the Send intent, for "text/html" 
+      mimeTypes.
     p
       pre
         code.Xml.
-          &lt;uses-feature android:name="android.hardware.sensor.accelerometer"
-                        android:required="true" /&gt;
+          &lt;activity android:name=".FakeMailActivity"&gt;
+              &lt;intent-filter&gt;
+                  &lt;action android:name="android.intent.action.SEND" /&gt;
+                  &lt;category android:name="android.intent.category.DEFAULT"/&gt;
+                  &lt;data android:mimeType="text/html" /&gt;
+              &lt;/intent-filter&gt;
+          &lt;/activity&gt;
     p.
-      If your app uses an accelerometer, but does not require it to run you should set
-      #[tt android:required] to false instead of true.
+      Now, whenever you send the "Send" intent for "text/html", it will ask whether you want to use the Mail app
+      or our custom app.
+    p
+      img(src="/static/images/email_chooser.png")
+    
+    h4 Receiving broadcasts
+    p.
+      Your app might send an Intent as a broadcast, furthermore the Android system sends broadcasts all the time.
+      To receive such a broadcast, you would need a #[tt BroadcastReceiver] class, which could look like this:
+    p
+      pre
+        code.Java.
+          public class NoPhoneCallsReceiver extends BroadcastReceiver {
+              @Override
+              public void onReceive(Context context, Intent intent) {
+              }
+          }
+    p.
+      We could then make this Receiver, receive the "OutgoingCalls" Broadcast, we simply have to add it to the
+      manifest (at the same place where you would add a new activity), and give it an intent filter, like so:
+    p
+      pre
+        code.XML.
+          &lt;receiver android:name=".NoPhoneCallsReceiver"&gt;
+              &lt;intent-filter&gt;
+                  &lt;action android:name="android.intent.action.NEW_OUTGOING_CALL" /&gt;
+              &lt;/intent-filter&gt;
+          &lt;/receiver&gt;
+    p.
+      Intercepting this outgoing phone-calls broadcast, can have many uses, such as calling your friends via
+      VoIP instead of over the phone network, or making sure that the correct area code is appended, or to
+      block any calls to numbers that are not on a parental-control whitelist.
+    p.
+      Now, a fun thing to do would be to make this Receiver, stop any outgoing phone calls, like so:
+    p
+      pre
+        code.Java.
+          public class NoPhoneCallsReceiver extends BroadcastReceiver {
+              @Override
+              public void onReceive(Context context, Intent intent) {
+                  setResultData(null);
+              }
+          }
+    
+    
   section.column.small-12
     h2 Exercises
     h4 Exercise 1
     p.
-      Make an app that sets the text of some textView programmatically
+      Create an app that has a main activity, and another activity that simply shows a layout with an image. Add a 
+      Button to the main activity's layout, that will open the second activity.
     h4 Exercise 2
     p.
-      Make an app that shows the temperature in the room, the illuminance, the air
-      pressure and the humidity.
+      Create an app that has a main activity, and another activity that simply shows a layout with an EditText. Add a 
+      Button and a EditText to the main activity's layout, that will open the second activity which will display the
+      text written in the EditText.
     h4 Exercise 3
     p.
-      Consider what the difference between the
-      #[a(href="https://developer.android.com/guide/topics/sensors/sensors_position.html#sensors-pos-geomrot") Geomagnetic Rotation Vector],
-      #[a(href="https://developer.android.com/guide/topics/sensors/sensors_position.html#sensors-pos-gamerot") Game Rotation Vector],
-      and the
-      #[a(href="https://developer.android.com/guide/topics/sensors/sensors_motion.html#sensors-motion-rotate") Rotation Vector]
-      is.
+      Create an Activity that has a "Send Mail" button, which opens an Email dialog.
     h4 Exercise 4
     p.
-      Make an app that indicates what direction the user is pointed (through graphics, text, color or anything else)
+      Create an Activity that acts as an alternative for the email client when pressing the "Send Mail" from Exercise 3.
     h4 Exercise 5
     p.
-      Make an app the shows how fast you are accelerating (either along just one axis, or along all 3 axesh4 Exercise 5
+      Create a BroadcastReceiver, that blocks all outgoing phone-calls.
     h4 Exercise 6
     p.
-      Can you make an app that shows how fast you are walking?
-
-
-  section.column.small-12
-    h2 Hand-in
-    p.callout.warning.
-      More information soon
-    div
-      form(action="/handin/1" method="post" enctype="multipart/form-data")
-        input(type="file" name="handinPackage")
-        input(type="text" name="student")
-        input(type="submit")
+      Create an Activity that sends a Broadcast, and a BroadcastReceiver that receives the given Broadcast.
