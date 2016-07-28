@@ -66,7 +66,7 @@ router.get("/get-:studentName/:handinNr", function(req, res, next) {
   files.forEach((file,index) => {
     zipFiles.push({
       path: __dirname + "/../hand-ins/" + req.params.handinNr + "/" + req.params.studentName + "/" + file,
-      name: file
+      name: req.params.studentName + "/" + file
     });
   });
   res.zip(zipFiles, "Handin-" + req.params.studentName + "-" + req.params.handinNr + ".zip");
