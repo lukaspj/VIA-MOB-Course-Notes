@@ -10,7 +10,7 @@ var router = express.Router();
     });
 });
 
-["pie-chart", "pie-chart-activity_main", "pie-chart-attrs"].forEach((current, index) => {
+["pie-chart", "pie-chart-activity_main", "pie-chart-attrs", "pop-up-activity"].forEach((current, index) => {
    router.get('/code-example-' + current, (req, res, next) => {
        res.render('notes/code-examples/' + current, { title: 'Code Example: ' + current});
    });
