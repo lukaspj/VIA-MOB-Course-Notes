@@ -1,0 +1,155 @@
+extends layout
+
+block content
+  h1 Solution for exercise 2 day 3
+  h2 MainActivity
+  pre
+    code.Java.
+      // The MainActivity class, should implement the SensorEventListener if it needs to listen
+      // to data from sensors.
+      public class MainActivity extends AppCompatActivity implements SensorEventListener {
+
+          // Declare the SensorManager and the Sensors here, so we can access them in
+          // all methods, without having to use getDefaultSensor in each one.
+          SensorManager mSensorManager;
+          Sensor mTempSensor;
+          Sensor mLightSensor;
+          Sensor mPressureSensor;
+          Sensor mHumiditySensor;
+
+          // Store the relevant TextViews here, so that we can re-use them in each method.
+          TextView mTempTextView;
+          TextView mLightTextView;
+          TextView mPressureTextView;
+          TextView mHumidityTextView;
+
+          @Override
+          protected void onCreate(Bundle savedInstanceState) {
+              super.onCreate(savedInstanceState);
+              setContentView(R.layout.activity_main);
+
+              // We have to initialize the SensorManager in the onCreate method, because we can't do it
+              // before the Activity has been initialized, and we only want to initialize the
+              // SensorManager once.
+              mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+              mTempSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
+              mLightSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+              mPressureSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
+              mHumiditySensor = mSensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
+
+              // Initialize the TextView, by finding them from the layout
+              mTempTextView = (TextView)findViewById(R.id.tempText);
+              mLightTextView = (TextView)findViewById(R.id.lightText);
+              mPressureTextView = (TextView)findViewById(R.id.pressureText);
+              mHumidityTextView = (TextView)findViewById(R.id.humidityText);
+
+              // Set a default message, if the phone doesn't have the sensor
+              if(mTempSensor == null) {
+                  mTempTextView.setText("The phone does not have a temperature sensor");
+              }
+              if(mLightSensor == null) {
+                  mLightTextView.setText("The phone does not have a light sensor");
+              }
+              if(mPressureSensor == null) {
+                  mPressureTextView.setText("The phone does not have an air pressure sensor");
+              }
+              if(mHumiditySensor == null) {
+                  mHumidityTextView.setText("The phone does not have a humidity sensor");
+              }
+          }
+
+          @Override
+          protected void onResume() {
+              super.onResume();
+              // Register this object as a listener for all of our 4 sensors.
+              mSensorManager.registerListener(this, mTempSensor, SensorManager.SENSOR_DELAY_UI);
+              mSensorManager.registerListener(this, mLightSensor, SensorManager.SENSOR_DELAY_UI);
+              mSensorManager.registerListener(this, mPressureSensor, SensorManager.SENSOR_DELAY_UI);
+              mSensorManager.registerListener(this, mHumiditySensor, SensorManager.SENSOR_DELAY_UI);
+          }
+
+          @Override
+          protected void onPause() {
+              super.onPause();
+              // Unregister this object from all sensor data events
+              mSensorManager.unregisterListener(this);
+          }
+
+          @Override
+          public void onSensorChanged(SensorEvent event) {
+              // Handle Sensor data here
+
+              // Check which Sensor the data originate from, and handle the cases accordingly.
+              switch (event.sensor.getType()) {
+                  case Sensor.TYPE_AMBIENT_TEMPERATURE:
+                      // The temperature sensor, stores the temperature in
+                      // celsius, in event.values[0]
+                      mTempTextView.setText(Float.toString(event.values[0]));
+                      mTempTextView.invalidate();
+                      break;
+                  case Sensor.TYPE_LIGHT:
+                      // The light sensor, stores the light level in
+                      // lx, in event.values[0]
+                      mLightTextView.setText("" + event.values[0]);
+                      mLightTextView.invalidate();
+                      break;
+                  case Sensor.TYPE_PRESSURE:
+                      // The pressure sensor, stores the air pressure in
+                      // mbar, in event.values[0]
+                      mPressureTextView.setText(Float.toString(event.values[0]));
+                      mPressureTextView.invalidate();
+                      break;
+                  case Sensor.TYPE_RELATIVE_HUMIDITY:
+                      // The humidity sensor, stores the humidity in 
+                      // percentage, in event.values[0]
+                      mHumidityTextView.setText(Float.toString(event.values[0]));
+                      mHumidityTextView.invalidate();
+                      break;
+              }
+          }
+
+          @Override
+          public void onAccuracyChanged(Sensor sensor, int accuracy) {
+              // Handle a change in the sensors's accuracy, we wont need this, for this course.
+              // So ignore it if you please.
+          }
+      }
+  h2 activity_main.xml
+  pre
+    code.Xml.
+      &lt;?xml version="1.0" encoding="utf-8"?&gt;
+      &lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:paddingBottom="@dimen/activity_vertical_margin"
+          android:paddingLeft="@dimen/activity_horizontal_margin"
+          android:paddingRight="@dimen/activity_horizontal_margin"
+          android:paddingTop="@dimen/activity_vertical_margin"
+          android:orientation="vertical"
+          tools:context="com.example.gomer.hwsensors.MainActivity"&gt;
+
+          &lt;!-- The container for the temperature sensor data --&gt;
+          &lt;TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:id="@+id/tempText"/&gt;
+
+          &lt;!-- The container for the light sensor data --&gt;
+          &lt;TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:id="@+id/lightText"/&gt;
+
+          &lt;!-- The container for the air pressure sensor data --&gt;
+          &lt;TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:id="@+id/pressureText"/&gt;
+
+          &lt;!-- The container for the humidity sensor data --&gt;
+          &lt;TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:id="@+id/humidityText"/&gt;
+      &lt;/LinearLayout&gt;

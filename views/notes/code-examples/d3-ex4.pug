@@ -1,0 +1,119 @@
+extends layout
+
+block content
+  h1 Solution for exercise 4 day 3
+  h2 MainActivity
+  pre
+    code.Java.
+      // The MainActivity class, should implement the SensorEventListener if it needs to listen
+      // to data from sensors.
+      public class MainActivity extends AppCompatActivity implements SensorEventListener {
+
+          // Declare the SensorManager and the Sensors here, so we can access them in
+          // all methods, without having to use getDefaultSensor in each one.
+          SensorManager mSensorManager;
+          Sensor mAccelerationSensor;
+
+          // Store the relevant TextViews here, so that we can re-use them in each method.
+          TextView mXAccTextView;
+          TextView mYAccTextView;
+          TextView mZAccTextView;
+
+          @Override
+          protected void onCreate(Bundle savedInstanceState) {
+              super.onCreate(savedInstanceState);
+              setContentView(R.layout.activity_main);
+
+              // We have to initialize the SensorManager in the onCreate method, because we can't do it
+              // before the Activity has been initialized, and we only want to initialize the
+              // SensorManager once.
+              mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+              mAccelerationSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+              // Initialize the TextView, by finding them from the layout
+              mXAccTextView = (TextView)findViewById(R.id.xAccText);
+              mYAccTextView = (TextView)findViewById(R.id.yAccText);
+              mZAccTextView = (TextView)findViewById(R.id.zAccText);
+
+              // Set a default message, if the phone doesn't have the sensor
+              if(mAccelerationSensor == null) {
+                  mXAccTextView.setText("The phone does not have an acceleration sensor");
+                  mYAccTextView.setText("The phone does not have an acceleration sensor");
+                  mZAccTextView.setText("The phone does not have an acceleration sensor");
+              }
+          }
+
+          @Override
+          protected void onResume() {
+              super.onResume();
+              // Register this object as a listener for our sensor.
+              mSensorManager.registerListener(this, mAccelerationSensor, SensorManager.SENSOR_DELAY_UI);
+          }
+
+          @Override
+          protected void onPause() {
+              super.onPause();
+              // Unregister this object from all sensor data events
+              mSensorManager.unregisterListener(this);
+          }
+
+          @Override
+          public void onSensorChanged(SensorEvent event) {
+              // Handle Sensor data here
+
+              // Check which Sensor the data originate from, and handle the cases accordingly.
+              switch (event.sensor.getType()) {
+                  case Sensor.TYPE_ACCELEROMETER:
+                      // The accelerometer stores the Acceleration force along
+                      // the x axis (including gravity) in m/s^2. in event.values[0].
+                      // For y it's event.values[1] and for z it's event.values[2].
+                      mXAccTextView.setText(Float.toString(event.values[0]));
+                      mYAccTextView.setText(Float.toString(event.values[1]));
+                      mZAccTextView.setText(Float.toString(event.values[2]));
+                      mXAccTextView.invalidate();
+                      mYAccTextView.invalidate();
+                      mZAccTextView.invalidate();
+                      break;
+              }
+          }
+
+          @Override
+          public void onAccuracyChanged(Sensor sensor, int accuracy) {
+              // Handle a change in the sensors's accuracy, we wont need this, for this course.
+              // So ignore it if you please.
+          }
+      }
+
+  h2 activity_main.xml
+  pre
+    code.Xml.
+      &lt;?xml version="1.0" encoding="utf-8"?&gt;
+      &lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:paddingBottom="@dimen/activity_vertical_margin"
+          android:paddingLeft="@dimen/activity_horizontal_margin"
+          android:paddingRight="@dimen/activity_horizontal_margin"
+          android:paddingTop="@dimen/activity_vertical_margin"
+          android:orientation="vertical"
+          tools:context="com.example.gomer.hwsensors.MainActivity"&gt;
+
+          &lt;!-- The container for the x acceleration --&gt;
+          &lt;TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:id="@+id/xAccText"/&gt;
+
+          &lt;!-- The container for the y acceleration --&gt;
+          &lt;TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:id="@+id/yAccText"/&gt;
+
+          &lt;!-- The container for the z acceleration --&gt;
+          &lt;TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:id="@+id/zAccText"/&gt;
+      &lt;/LinearLayout&gt;
