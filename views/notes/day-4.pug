@@ -7,15 +7,15 @@ block content
   section.column.small-12
     h2 Lecture notes: day 4
     p.
-      In the following lecture notes, a #[em component] is defined as described in the 
+      In the following lecture notes, a #[em component] is defined as described in the
       #[a(href="https://developer.android.com/guide/components/fundamentals.html#Components") documentation].
     h4 Catching user-interface events
     p.
       In order to catch an event from the user-interface (such as when something is clicked), you simply have to
-      add a public method to the #[tt Activity], and then add the #[tt onClick] attribute to an element in the 
+      add a public method to the #[tt Activity], and then add the #[tt onClick] attribute to an element in the
       user-interface.
     p.
-      First, we will look at the method we need to add to the #[tt Activity]. It should return void and take a 
+      First, we will look at the method we need to add to the #[tt Activity]. It should return void and take a
       #[tt View] as the parameter.
     p
       pre
@@ -40,7 +40,7 @@ block content
     p.
       So far you have had your default MainActivity, which Android Studio probably set up for you. In today's
       lecture, we will look at creating a new Activity, which we can then start using Intents. So, first things
-      first. We should create a new Activity. First, create a new #[tt Java] file, next to the MainActivity.java file 
+      first. We should create a new Activity. First, create a new #[tt Java] file, next to the MainActivity.java file
       (in the #[tt app/src/main/java/your/package/name/] folder).
     p.
       The new Java file, should have a new activity, which extends the "Activity" class, just like the MainActivity.
@@ -91,7 +91,7 @@ block content
           #[tt onActivityResult] on your Activity when it's done.
       li Starting a "Service" (a component that runs in the background without an interface)
         p.
-          You can start a Service to perform some operation with the #[tt startService()] method, we will look at 
+          You can start a Service to perform some operation with the #[tt startService()] method, we will look at
           this later.
       li Delivering a broadcast
         p.
@@ -111,10 +111,10 @@ block content
       The implicit intents do not specify a specific component, but instead they declare some general
       action they want to perform (like "Send Email"), and then components from any app can pitch-in and
       respond to it.
-    
+
     h4 Starting an Activity with an intent
     p.
-      First, create the new #[tt Intent] object, here we will use an explicit intent, as we want to start a specific 
+      First, create the new #[tt Intent] object, here we will use an explicit intent, as we want to start a specific
       #[Activity] from our application. For the intent to be explicit, we need to explicitly specify the class the
       #[tt Intent] is to be send to. Then we will simply call #[tt startActivity] method. Example:
     p
@@ -135,7 +135,7 @@ block content
     h5 Accessing the message in the Intent
     p.
       To access the message stored with #[tt putExtra], we can use the #[tt getIntent] method in the receiving Activity.
-      We can then access the message values using #[tt intent.get(Type)Extra(key)], where "(Type)" should be replaced 
+      We can then access the message values using #[tt intent.get(Type)Extra(key)], where "(Type)" should be replaced
       with what type of value you are trying to retrieve (such as String, Boolean etc.). Example:
     p
       pre
@@ -164,7 +164,7 @@ block content
       In order to create such an implicit intent, we simply create a new intent, set the appropriate #[tt Action]
       and give it the meta-data needed such that the Activity, receiving the intent can complete the task.
     p.
-      We will re-use the email example. If we want to send an email from our app, we will use the action 
+      We will re-use the email example. If we want to send an email from our app, we will use the action
       #[tt Intent.ACTION_SEND]. The #[tt ACTION_SEND] action means that we want to send some data.
     p
       pre
@@ -189,12 +189,12 @@ block content
               startActivity(Intent.createChooser(mailIntent, "Send Mail"));
           }
     p.
-      This is just one example of what you can do with the framework actions. To see all the different available 
-      Actions, look at the reference for the 
+      This is just one example of what you can do with the framework actions. To see all the different available
+      Actions, look at the reference for the
       #[a(href="https://developer.android.com/reference/android/content/Intent.html") Intent].
     h4 Receiving an implicit intent from any app
     p.
-      To receive an implicit intent, you need to create the Activity that should receive the intent, for example it 
+      To receive an implicit intent, you need to create the Activity that should receive the intent, for example it
       it could be an Activity, which catches the "Send" intent, but instead of sending it, it actually display the mail.
     p.
       First, you have to create the Activity. Just make it an empty Activity like this:
@@ -208,7 +208,7 @@ block content
               }
           }
     p.
-      Now, add the new Activity to the manifest, and give it a filter that catches the Send intent, for "text/html" 
+      Now, add the new Activity to the manifest, and give it a filter that catches the Send intent, for "text/html"
       mimeTypes.
     p
       pre
@@ -225,7 +225,7 @@ block content
       or our custom app.
     p
       img(src="/static/images/email_chooser.png")
-    
+
     h4 Receiving broadcasts
     p.
       Your app might send an Intent as a broadcast, furthermore the Android system sends broadcasts all the time.
@@ -264,17 +264,20 @@ block content
                   setResultData(null);
               }
           }
-    
-    
+
+
+    p
+      a(href="/notes/code-example-pop-up-activity") PopUp Activity class
+
   section.column.small-12
     h2 Exercises
     h4 Exercise 1
     p.
-      Create an app that has a main activity, and another activity that simply shows a layout with an image. Add a 
+      Create an app that has a main activity, and another activity that simply shows a layout with an image. Add a
       Button to the main activity's layout, that will open the second activity.
     h4 Exercise 2
     p.
-      Create an app that has a main activity, and another activity that simply shows a layout with an EditText. Add a 
+      Create an app that has a main activity, and another activity that simply shows a layout with an EditText. Add a
       Button and a EditText to the main activity's layout, that will open the second activity which will display the
       text written in the EditText.
     h4 Exercise 3
