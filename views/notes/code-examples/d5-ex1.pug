@@ -1,0 +1,69 @@
+extends layout
+
+block content
+  h1 Solution for exercise 1 day 5
+  h2 MainActivity
+  pre
+    code.Java.
+      public class MainActivity extends AppCompatActivity {
+
+          // For avoiding typos, we save the name of the prefs here
+          public static final String APP_STATE_PREFS = "APP_STATE";
+          public static final String EDITTEXT_VALUE_PREF = "EDITTEXT_VALUE";
+
+          @Override
+          protected void onCreate(Bundle savedInstanceState) {
+              super.onCreate(savedInstanceState);
+              setContentView(R.layout.activity_main);
+
+              // Fetch the SharedPreferences
+              SharedPreferences sharedPreferences = getSharedPreferences(APP_STATE_PREFS, Activity.MODE_PRIVATE);
+              // Read the stored value of the editText here, defaulting to "Write something!"
+              String pref = sharedPreferences.getString(EDITTEXT_VALUE_PREF, "Write something!");
+              // Get the EditText View
+              EditText editText = (EditText) findViewById(R.id.someEditText);
+              // Set the value of our editText View
+              editText.setText(pref);
+          }
+
+          @Override
+          protected void onStop() {
+              super.onStop();
+
+              // Fetch the SharedPreferences
+              SharedPreferences sharedPreferences = getSharedPreferences(APP_STATE_PREFS, Activity.MODE_PRIVATE);
+
+              // Begin editing, by creating the Editor object
+              SharedPreferences.Editor editor = sharedPreferences.edit();
+              // Fetch the EditText from the Interface
+              EditText editText = (EditText) findViewById(R.id.someEditText);
+              // Fetch the value of the editText
+              String editTextState = editText.getText().toString();
+              // Store the editTextState, which is the text value of it
+              editor.putString(EDITTEXT_VALUE_PREF, editTextState);
+
+              // Save our changes
+              editor.apply();
+          }
+      }
+  h2 activity_main.xml
+  pre
+    code.Xml.
+      &lt;?xml version="1.0" encoding="utf-8"?&gt;
+      &lt;RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:paddingBottom="@dimen/activity_vertical_margin"
+          android:paddingLeft="@dimen/activity_horizontal_margin"
+          android:paddingRight="@dimen/activity_horizontal_margin"
+          android:paddingTop="@dimen/activity_vertical_margin"
+          tools:context="com.example.lukas.localstorage.MainActivity"&gt;
+
+          &lt;EditText
+              android:id="@+id/someEditText"
+              android:inputType="text"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content" /&gt;
+      &lt;/RelativeLayout&gt;
+      

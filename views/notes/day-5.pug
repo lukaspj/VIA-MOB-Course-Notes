@@ -1,0 +1,304 @@
+extends layout
+
+block header
+  h2 Course page for: #[strong Mobile Applications]
+
+block content
+  section.column.small-12
+    h2 Lecture notes: day 5
+    h4 Local storage
+    p.
+      There are various motivations for having access to some local storage:
+    ul
+      li Settings
+      li Application state
+      li Application data
+      li Caching
+      li Storing big data-sets, such as dictionaries
+    h4 Shared Preferences
+    p.
+      The Shared Preferences is a lightweight mechanism to store a known set of values. Shared Preferences
+      lets you save groups of name/value pairs of primitive data as named preferences.
+    p.
+      They are very simple. Shared Preferences are shared between components in your app,
+      but not with other apps. You will simply get the shared preferences, using some name and then either get or set
+      the information you need.
+    h5 Writing data to a Shared Preference
+    p.
+      When you want to write data to a Shared Preference, you first get the SharedPreference, then you create an editor 
+      for it, then you set the values you need. And in the end you either commit or apply it. Committing it, saves the 
+      SharedPreference synchronously, while the apply is asynchronous, which is therefore the preferred way of saving. 
+      Example:
+    p
+      pre
+        code.Java.
+          SharedPreferences sharedPreferences = getSharedPreferences("Some PRefs", Activity.MODE_PRIVATE);
+          SharedPreferences.Editor editor = sharedPreferences.edit();
+          editor.putString("editTextValue", "Some Value");
+          editor.apply();
+    p.
+      Now that you have written some data to the pref, "Some PRefs", we can read it like so:
+    p
+      pre
+        code.Java.
+          SharedPreferences sharedPreferences = getSharedPreferences("Some PRefs", Activity.MODE_PRIVATE);
+          String result = sharedPreferences.getString("editTextValue", "Write something!");
+    p.
+      If we put the save code in the #[tt onClose] method, and the read code in the #[tt onCreate] method, then we are
+      able to save and restore the UI state, even across app sessions. This might be useful, for storing the user's 
+      interaction with the app, even if the app is closed and restarted.
+    p
+      a(href="https://developer.android.com/guide/topics/data/data-storage.html#pref") Read more
+    h4 Internal Storage
+    p.
+      Accessing the device's internal storage, is useful for saving/caching arbitrary files and values. The data
+      stored on the internal storage, is by default hidden from other apps and even the user. The only
+      restriction on the data stored on the internal storage, is how much memory you use. The internal storage
+      is often limited, and you should always make your app's memory footprint as small as possible.
+    p.
+      Opening a file for reading in the internal storage, is done with the #[tt openFileOutput] method, like so:
+    p
+      pre
+        code.Java.
+          // Open the file for writing
+          FileOutputStream fos = openFileOutput(STORAGE_FILE, Context.MODE_PRIVATE);
+          // Write the some bytes to the file
+          fos.write(editTextState.getBytes());
+          // Close the file
+          fos.close();
+    p.
+      Similarly, we can open a file in the internal storage for reading using the #[tt openFileInput] method, like so:
+    p
+      pre
+        code.Java.
+          // Open the file for reading
+          FileInputStream fis = openFileInput(STORAGE_FILE);
+          
+          // ... Read the data ...
+          
+          // Close the file
+          fis.close();
+    p
+      a(href="https://developer.android.com/guide/topics/data/data-storage.html#filesInternal") Read more
+    h4 External Storage
+    p.
+      Accessing the device's external storage often gives access to a lot more storage space, but it also means that
+      the media you are storing your files on is a lot more unstable (imagine someone removing the SD-card where all your
+      important data is on).
+    p.
+      The external storage is especially useful for files that your app does not depend on, such as a camera-app that
+      takes a picture. The app would want to store it on the external storage, as it does not need the picture in the
+      future, except if the user wants to review the pictures he took recently. So it is non-critical for the app, and 
+      it is therefore save to store on the external storage. Furthermore, storing on the external storage, can be a way
+      of giving the user access to some file that the app has generated.
+    p.
+      When you want to store some file on the external storage, you can either store it as a "public" file, as a "private"
+      file or a "cache" file.
+    dl
+      dt Public files
+      dd Readable by everyone and accessible by the user.
+      dt Private files
+      dd Only readable by the app who saved it, cannot be accessed by the user.
+      dt Cache files
+      dd. 
+        Temporary files, that can be deleted at any time. The user may delete the cache files, to clear up space.
+        This doesn't mean that you should be wasteful with the space in the cache, you should still make sure
+        to cleanup in the cache when you're done with it.
+    p.
+      If we would want to write data to the private storage, then we would use the #[tt getExternalFilesDir] method to
+      get access to the directory, and finding our file within. Starting from Android 4.4 and above, we don't need the 
+      #[tt WRITE_EXTERNAL_STORAGE] permission for writing to the private storage. Example:
+    p
+      pre
+        code.Java.
+          // Get the private external files storage directory
+          File file = new File(getExternalFilesDir(null), STORAGE_DIR);
+          if (!file.mkdirs()) {
+              Log.e("onStop", "Directory not created");
+          }
+    p.
+      Now that we have access to the private storage folder, we can locate some file within it and write some data to it,
+      like so:
+    p
+      pre
+        code.Java.
+          // Locate the specific file we want
+          File cacheFile = new File(file, STORAGE_FILE);
+          try {
+              // Try creating the file
+              if(!cacheFile.createNewFile()) {
+                  Log.e("onStop", "File not created");
+              }
+              // Open the file for writing
+              FileWriter fw = new FileWriter(cacheFile);
+              // Write the content to the File
+              fw.write(editTextState);
+              // Close the Stream
+              fw.close();
+          } catch (IOException e) {
+              e.printStackTrace();
+          }
+    p.
+      Reading from the file is similar. The only difference between writing to the private directory, and the public
+      and cache directory, is what method you need to get access to the directory.
+    ul
+      li private &rarr; #[tt getExternalFilesDir]
+      li public  &rarr; #[tt Environment.getExternalStoragePublicDirectory]
+      li private &rarr; #[tt getExternalCacheDir]
+    p
+      a(href="https://developer.android.com/guide/topics/data/data-storage.html#filesExternal") Read more
+    h4 Other topics
+    dl
+      dt 
+        a(href="https://developer.android.com/guide/topics/providers/content-providers.html") Content Providers
+      dd 
+        p.
+          Content providers manage access to a structured set of data. They encapsulate the data, and provide mechanisms 
+          for defining data security. Content providers are the standard interface that connects data in one process with 
+          code running in another process.
+        p.
+          We skip them for this course, but if you need to learn more about them the above link is the place to go.
+      dt
+        a(href="https://developer.android.com/guide/topics/data/data-storage.html#db") Storing data in a local database
+      dd
+        p.
+          We skip it in this course, as it is relatively complicated, and it's more likely than not that we wont need it.
+          However, it's a useful thing to know about as it can come in handy, so it's recommended to look at.
+    h2 The Preference Framework
+    p.
+      In order to have a standard way of changing application settings, the Android system provides the Preference
+      Framework, to create Activities for changing app settings. We will take a shallow look at it here, read the 
+      documentation to learn all the ways you can set up this settings view.
+    p.
+      In order to create a user interface that uses this standardized way of manipulating the settings, we need 3 parts.
+      First, we need the preferences xml file, which is similar to a layout file but much more specialized and can only
+      hold a small set of elements. Second, we need the SettingsFragment and lastly we need the SettingsActivity.
+    p.
+      First, we will look at the preferences xml file. You can read about defining preferences in XML 
+      #[a(href="https://developer.android.com/guide/topics/ui/settings.html#DefiningPrefs") here]. But the some of the 
+      elements you can work with are these:
+    dl
+      dt PreferencesScreen
+      dd Can hold any number of children, defines a new screen with settings.
+      dt PreferenceCategory
+      dd Can hold any number of children, groups settings, and provide them with a title.
+      dt EditTextPreference
+      dd A preference that defines some text, and can be edited.
+    p.
+      Each of the elements has an "android:key" attribute, which you can use to find the value of the preference in the
+      SharedPreferences object.
+    p.
+      Such a preferences xml file, should be put in the #[tt res/xml] folder and should be called "something.xml". An
+      example of such a file could be:
+    p
+      pre
+        code.Xml.
+          &lt;?xml version="1.0" encoding="utf-8"?&gt;
+          &lt;PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"&gt;
+              &lt;PreferenceCategory
+                  android:title="View texts"
+                  android:key="pref_key_view_texts"&gt;
+                  &lt;EditTextPreference
+                      android:key="pref_key_hello_world"
+                      android:summary="Some summary"
+                      android:title="Hello World text" /&gt;
+              &lt;/PreferenceCategory&gt;
+          &lt;/PreferenceScreen&gt;
+    p.
+      Now that we have the xml file, we need something to display it. On Android 3.0 and above you should use a
+      #[tt PreferenceFragment], but if you want to support below that, you should use a #[tt PreferenceActivity].
+      As we are developing for Android 4.4 and above, we will use the #[tt PreferenceFragment]:
+    p
+      pre
+        code.Java.
+          public class SettingsFragment extends PreferenceFragment {
+              @Override
+              public void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+
+                  addPreferencesFromResource(R.xml.preferences);
+              }
+          }
+    p.
+      Now we just need an Activity to show this Fragment. This Activity could look like this:
+    p
+      pre
+        code.Java.
+          public class SettingsActivity extends Activity {
+              @Override
+              protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+
+                  getFragmentManager().beginTransaction()
+                          .replace(android.R.id.content, new SettingsFragment())
+                          .commit();
+              }
+          }
+    p.
+      Now we can simply show our Settings window using a button trigger that sends an Intent like so:
+    p
+      pre
+        code.Java.
+          public void showSettings(View view) {
+              Intent intent = new Intent(this, SettingsActivity.class);
+              startActivity(intent);
+          }
+    p.
+      In order to react to the user changing some settings, any Activity that is affected by the change, should 
+      implement the #[tt onSharedPreferenceChangeListener] interface and register as a listener for the SharedPreferences
+      that the PreferenceManager uses:
+    p
+      pre
+        code.Java.
+          SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+          prefs.registerOnSharedPreferenceChangeListener(this);
+    p.
+      Now we can simply utilize this SharedPreferences object to set preferences for our app and setup user settings.
+  section.column.small-12
+    h2 Exercises
+    h4 Exercise 1
+    p.
+      Make an app that has an EditText View. Use SharedPreferences, to ensure that whatever the user writes in the 
+      EditText, in the app is persisted, even if the app is closed.
+    h4 Exercise 2
+    p.
+      Make an app that has an EditText View. Use InternalStorage, to ensure that whatever the user writes in the 
+      EditText, in the app is persisted, even if the app is closed.
+    h4 Exercise 3
+    p.
+      Make an app that has an EditText View. Use ExternalStorage, to ensure that whatever the user writes in the 
+      EditText, in the app is persisted, even if the app is closed.
+    h4 Exercise 4
+    p.
+      Make an app, with a TextView. Let the content of the TextView be read in from the SharedPreferences, which can be 
+      edited through a SettingsActivity, that uses the Preference Framework
+    h4 Solutions
+    ul
+      li
+        a(href="/notes/code-example-d5-ex1") Exercise 1
+      li
+        a(href="/notes/code-example-d5-ex2") Exercise 2
+      li
+        a(href="/notes/code-example-d5-ex3") Exercise 3
+      li
+        a(href="/notes/code-example-d5-ex4") Exercise 4
+  section.column.small-12
+    h2 Hand-in
+    p.
+      Think about what kind of app you want to create in your group for your group project. Write a short document 
+      (.pdf) about what your idea is, and what sort of technologies you believe you need in order to implement the app.
+    p.callout.warning.
+      Deadline: Monday #[strong (week 2)] 14:00 (after class)
+    div.callout
+      p Hand-in submission for hand-in 3 (Group Project - Milestone 1)
+      p.
+        You should hand in the whole directory, and all the files in your project,
+        as a compressed archive (such as .zip).
+      form(action="/handin/3" method="post" enctype="multipart/form-data")
+        label(for="handinPackage") Upload your solution:
+        input(type="file" id="handinPackage" name="handinPackage" required="true")
+        label(for="student").
+          Type your Group-name here, using
+          #[strong only letters from the english alphabet (a-z) and no accents].
+        input(type="text" id="student" name="student" pattern="[a-zA-Z]+")
+        input(type="submit")

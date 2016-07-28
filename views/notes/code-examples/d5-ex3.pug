@@ -1,0 +1,99 @@
+extends layout
+
+block content
+  h1 Solution for exercise 1 day 5
+  h2 MainActivity
+  pre
+    code.Java.
+      public class MainActivity extends AppCompatActivity {
+
+          // For avoiding typos, we save the name of the prefs here
+          public static final String STORAGE_DIR = "myFiles";
+          public static final String STORAGE_FILE = "myEditTextCache";
+
+          @Override
+          protected void onCreate(Bundle savedInstanceState) {
+              super.onCreate(savedInstanceState);
+              setContentView(R.layout.activity_main);
+
+              // Get the private external files storage directory
+              File file = new File(getExternalFilesDir(null), STORAGE_DIR);
+              // Locate the specific file we want
+              File cacheFile = new File(file, STORAGE_FILE);
+              if(cacheFile.exists()) {
+                  try {
+                      // Open the file for reading
+                      FileReader fr = new FileReader(cacheFile);
+                      int ch;
+                      StringBuilder sb = new StringBuilder();
+                      // Read all the characters from the file
+                      while((ch = fr.read()) != -1) {
+                          sb.append((char)ch);
+                      }
+                      // Close the file
+                      fr.close();
+
+                      // Get the EditText View
+                      EditText editText = (EditText) findViewById(R.id.someEditText);
+                      // Set the value of our editText View
+                      editText.setText(sb.toString());
+                  } catch (IOException e) {
+                      e.printStackTrace();
+                  }
+              }
+          }
+
+          @Override
+          protected void onStop() {
+              super.onStop();
+
+              // Fetch the EditText from the Interface
+              EditText editText = (EditText) findViewById(R.id.someEditText);
+              // Fetch the value of the editText
+              String editTextState = editText.getText().toString();
+
+              // Get the private external files storage directory
+              File file = new File(getExternalFilesDir(null), STORAGE_DIR);
+              if (!file.mkdirs()) {
+                  Log.e("onStop", "Directory not created");
+              }
+              // Locate the specific file we want
+              File cacheFile = new File(file, STORAGE_FILE);
+              try {
+                  // Try creating the file
+                  if(!cacheFile.createNewFile()) {
+                      Log.e("onStop", "File not created");
+                  }
+                  // Open the file for writing
+                  FileWriter fw = new FileWriter(cacheFile);
+                  // Write the content to the File
+                  fw.write(editTextState);
+                  // Close the Stream
+                  fw.close();
+              } catch (IOException e) {
+                  e.printStackTrace();
+              }
+
+          }
+      }
+  h2 activity_main.xml
+  pre
+    code.Xml.
+      &lt;?xml version="1.0" encoding="utf-8"?&gt;
+      &lt;RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:paddingBottom="@dimen/activity_vertical_margin"
+          android:paddingLeft="@dimen/activity_horizontal_margin"
+          android:paddingRight="@dimen/activity_horizontal_margin"
+          android:paddingTop="@dimen/activity_vertical_margin"
+          tools:context="com.example.lukas.localstorage.MainActivity"&gt;
+
+          &lt;EditText
+              android:id="@+id/someEditText"
+              android:inputType="text"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content" /&gt;
+      &lt;/RelativeLayout&gt;
+      

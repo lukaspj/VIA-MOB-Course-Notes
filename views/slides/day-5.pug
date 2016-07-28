@@ -1,0 +1,201 @@
+extends layout
+
+block content
+  section
+    h2 App-to-app communication
+    i Day 5
+  section
+    h2 Agenda
+    ul
+      li Local Storage
+      li SharedPreferences
+      li Internal Storage
+      li External Storage
+      li Preference Framework
+  section
+    h2 Local storage
+    ul
+      li Settings
+      li Application state
+      li Application data
+      li Caching
+      li Storing big data-sets, such as dictionaries
+  section
+    section
+      h2 SharedPreferences
+      ul
+        li A lightweight mechanism to store a set of values.
+        li Lets you save groups of name/value pairs of primitive data
+        li Very simple to use
+        li Shared between components inside your app
+        li Not shared with other apps
+    section
+      h4 SharedPreferences - Writing data to a SharedPreference
+      pre
+        code.Java.
+          SharedPreferences sharedPreferences = getSharedPreferences("Some Prefs", Activity.MODE_PRIVATE);
+          SharedPreferences.Editor editor = sharedPreferences.edit();
+          editor.putString("editTextValue", "Some Value");
+          editor.apply();
+    section
+      h4 SharedPreferences - Reading data from a SharedPreference
+      pre
+        code.Java.
+          SharedPreferences sharedPreferences = getSharedPreferences("Some Prefs", Activity.MODE_PRIVATE);
+          String result = sharedPreferences.getString("editTextValue", "Write something!");
+    section
+      h4 SharedPreferences
+      p Put the save code in onClose, and the read code in onCreate and you can save the application state. 
+  section
+    section
+      h2 Internal Storage
+      ul
+        li The device's internal storage, limited memory available
+        li By default, hidden from other apps and the user
+        li Make your memory footprint as small as possible
+        li Data is deleted with the app
+    section
+      h2 Writing to internal storage
+      pre
+        code.Java.
+          // Open the file for writing
+          FileOutputStream fos = openFileOutput(STORAGE_FILE, Context.MODE_PRIVATE);
+          // Write the some bytes to the file
+          fos.write(editTextState.getBytes());
+          // Close the file
+          fos.close();
+    section
+      h2 Reading from internal storage
+      pre
+        code.Java.
+          // Open the file for reading
+          FileInputStream fis = openFileInput(STORAGE_FILE);
+
+          // ... Read the data ...
+
+          // Close the file
+          fis.close();
+  section
+    section
+      h2 External storage
+      ul
+        li Usually, more space available compare to internal storage
+        li Could be a SD-card
+        li Unstable, might get unplugged
+        li Can make the files accessible for other apps or the user
+    section
+      h4 External storage - types of storage
+      dl
+        dt Public files
+        dd Readable by everyone and accessible by the user
+        dt Private files
+        dd Only readable by the app who saved it, cannot be accessed by the user
+        dt Cache files
+        dd Temporary files that may be deleted at any time
+    section
+      h4 External storage - Reading
+      pre
+        code.Java.
+          // Get the private external files storage directory
+          File file = new File(getExternalFilesDir(null), STORAGE_DIR);
+          if (!file.mkdirs()) {
+              Log.e("onStop", "Directory not created");
+          }
+          // Locate the specific file we want
+          File cacheFile = new File(file, STORAGE_FILE);
+          try {
+            // Try creating the file
+            if(!cacheFile.createNewFile()) {
+              Log.e("onStop", "File not created");
+            }
+            // Open the file for writing
+            FileWriter fw = new FileWriter(cacheFile);
+            // Write the content to the File
+            fw.write(editTextState);
+            // Close the Stream
+            fw.close();
+          } catch (IOException e) { 
+            e.printStackTrace();
+          }
+  section
+    section
+      h2 The Preference Framework
+      ul
+        li Aims to provide the user with a standardized menu when changing settings.
+        li Very simple to use, and get usable results.
+        li Saves settings to SharedPreferences
+    section
+      h4 The Preference Framework - The components
+      p There are 3 main components in creating your own settings menu
+      ul
+        li The preferences XML file
+        li The SettingsFragment
+        li The SettingsActivity
+    section
+      h4 The Preference Framework - The preferences XML file
+      ul
+        li Similar to layouts, but has it's own set of elements.
+        li Very intuitive elements
+        li PreferencesScreen
+        li PreferenceCategory
+        li EditTextPreference
+        li android:key attribute (among others)
+    section
+      h4 The Preference Framework - The preferences XML file
+      pre
+        code.Xml.
+          &lt;?xml version="1.0" encoding="utf-8"?&gt;
+          &lt;PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"&gt;
+              &lt;PreferenceCategory
+                  android:title="View texts"
+                  android:key="pref_key_view_texts"&gt;
+                  &lt;EditTextPreference
+                      android:key="pref_key_hello_world"
+                      android:summary="Some summary"
+                      android:title="Hello World text" /&gt;
+              &lt;/PreferenceCategory&gt;
+          &lt;/PreferenceScreen&gt;
+    section
+      h4 The Preference Framework - The SettingsFragment
+      pre
+        code.Java.
+          public class SettingsFragment extends PreferenceFragment {
+              @Override
+              public void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+
+                  addPreferencesFromResource(R.xml.preferences);
+              }
+          }
+    section
+      h4 The Preference Framework - The SettingsActivity
+      pre
+        code.Java.
+          public class SettingsActivity extends Activity {
+              @Override
+              protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+
+                  getFragmentManager().beginTransaction()
+                          .replace(android.R.id.content, new SettingsFragment())
+                          .commit();
+              }
+          }
+    section
+      h4 The Preference Framework - Show it with an Intent
+      pre
+        code.Java.
+          public void showSettings(View view) {
+              Intent intent = new Intent(this, SettingsActivity.class);
+              startActivity(intent);
+          }
+    section
+      h4 The Preference Framework - Listen to user changing settings
+      ul
+        li Interested Activities should implement the onSharedPreferenceChangeListener interface
+        li Register as a listener
+        li Handle events
+      pre
+        code.Java.
+          SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+          prefs.registerOnSharedPreferenceChangeListener(this);
