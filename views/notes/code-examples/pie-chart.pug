@@ -3,143 +3,175 @@ extends layout
 block content
   pre
     code.Java.
-        package com.example.lukas.myapplication;
+      // Our PieChart will extend View, so it declares a whole new class that
+      // can be created in the xml.
+      public class PieChart extends View {
 
-        import android.content.Context;
-        import android.content.res.TypedArray;
-        import android.graphics.Canvas;
-        import android.graphics.Color;
-        import android.graphics.Paint;
-        import android.graphics.RectF;
-        import android.util.AttributeSet;
-        import android.view.View;
+          // Our attributes
+          boolean mShowText;
+          int mTextPos;
+          String mText = "Hello world!";
+          private float mTextHeight;
+          private float mPieStart;
+          private float mPieEnd;;
 
-        /**
-         * Created by Lukas on 23-07-2016.
-         */
-        public class PieChart extends View {
+          public void setPieStart(float start) {
+              mPieStart = start;
+          }
 
-            boolean mShowText = false;
-            int mTextPos = 0;
-            String mText = "Hello world!";
-            private Paint mTextPaint;
-            private Paint mPiePaint1;
-            private float mTextHeight;
-            private Paint mPiePaint2;
-            private RectF mPieBounds;
-            private float mPieStart;
-            private float mPieEnd;
+          public void setPieEnd(float end) {
+              mPieEnd = end;
+          }
 
-            public void setPieStart(float start) {
-                mPieStart = start;
-            }
+          public void setPieText(String text) {
+              mText = text;
+          }
 
-            public void setPieEnd(float end) {
-                mPieEnd = end;
-            }
-
-            public void setPieText(String text) {
-                mText = text;
-            }
+          // We store these objects here, so we don't have to change them
+          // each render.
+          private Paint mTextPaint;
+          private Paint mPiePaint1;
+          private Paint mPiePaint2;
+          private RectF mPieBounds
 
 
-            public PieChart(Context context, AttributeSet attrs) {
-                super(context, attrs);
+          public PieChart(Context context, AttributeSet attrs) {
+              super(context, attrs);
 
-                TypedArray a = context.getTheme().obtainStyledAttributes(
-                        attrs,
-                        R.styleable.PieChart,
-                        0, 0
-                );
+              // Get all set attributes for our object. In the xml,
+              // these are the values set with e.g. android:background or
+              // custom:pieStart. Our custom attributes can also be found in the
+              // attrs.xml
+              TypedArray a = context.getTheme().obtainStyledAttributes(
+                      attrs,
+                      R.styleable.PieChart,
+                      0, 0
+              );
 
-                try {
-                    mShowText = a.getBoolean(R.styleable.PieChart_showText, false);
-                    mTextPos = a.getInteger(R.styleable.PieChart_labelPosition, 0);
-                    mText = a.getString(R.styleable.PieChart_text);
-                    mPieStart = a.getFloat(R.styleable.PieChart_pieStart, 0);
-                    mPieEnd = a.getFloat(R.styleable.PieChart_pieEnd, 90);
-                } finally {
-                    a.recycle();
-                }
+              try {
+                  // Fetch the attributes from the TypedArray of attributes,
+                  // giving default values if the attribute has not been set.
+                  mShowText = a.getBoolean(R.styleable.PieChart_showText, false);
+                  mTextPos = a.getInteger(R.styleable.PieChart_labelPosition, 0);
+                  mText = a.getString(R.styleable.PieChart_text);
+                  mPieStart = a.getFloat(R.styleable.PieChart_pieStart, 0);
+                  mPieEnd = a.getFloat(R.styleable.PieChart_pieEnd, 90);
+              } finally {
+                  // Clean up, for performance reasons
+                  a.recycle();
+              }
 
-                init();
-            }
+              // Before the View starts rendering, call the init method,
+              // which will initialize all the static Paint objects.
+              init();
+          }
 
-            private void init() {
-                mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-                mTextPaint.setColor(Color.GREEN);
+          private void init() {
+              // Create a paint for our text, we use the ANTI_ALIAS_FLAG in
+              // order to make sure that the text will look good, even on
+              // screens with low resolution.
+              mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+              // Set the color of the paint to green, which means that the text
+              // will be drawn with a green font.
+              mTextPaint.setColor(Color.GREEN);
 
-                if (mTextHeight == 0) {
-                    mTextHeight = mTextPaint.getTextSize();
-                } else {
-                    mTextPaint.setTextSize(mTextHeight);
-                }
+              // If the textHeight has not been specified somewhere else,
+              // inquire the paint for the default textHeight (or size).
+              if (mTextHeight == 0) {
+                  mTextHeight = mTextPaint.getTextSize();
+              } else {
+                  // Otherwise, set the textsize to the specified size.
+                  mTextPaint.setTextSize(mTextHeight);
+              }
 
-                mPiePaint1 = new Paint(Paint.ANTI_ALIAS_FLAG);
-                mPiePaint1.setStyle(Paint.Style.FILL);
-                mPiePaint1.setTextSize(mTextHeight);
-                mPiePaint1.setColor(Color.MAGENTA);
+              // Initialize the pain for one part of the pie
+              mPiePaint1 = new Paint();
+              // Give it a "Fill" style, so that it will render a solid pie,
+              // and not just the outline of the pie
+              mPiePaint1.setStyle(Paint.Style.FILL);
+              mPiePaint1.setColor(Color.MAGENTA);
 
-                mPiePaint2 = new Paint(Paint.ANTI_ALIAS_FLAG);
-                mPiePaint2.setStyle(Paint.Style.FILL);
-                mPiePaint2.setTextSize(mTextHeight);
-                mPiePaint2.setColor(Color.LTGRAY);
-            }
+              // Repeat for paint 2
+              mPiePaint2 = new Paint();
+              mPiePaint2.setStyle(Paint.Style.FILL);
+              mPiePaint2.setColor(Color.LTGRAY);
+          }
 
-            @Override
-            protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-                super.onSizeChanged(w, h, oldw, oldh);
+          // This method will be called, everytime the PieChart View
+          // will be resized, and thus have to adapt to having either more or
+          // less size.
+          @Override
+          protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+              super.onSizeChanged(w, h, oldw, oldh);
 
-                int pieHeight = h - (int)mTextPaint.getTextSize();
+              // The maximum height of the pie, is the given height, minus
+              // the space needed for the text.
+              int pieHeight = h - (int)mTextPaint.getTextSize();
 
-                int maxSize = Math.min(w, pieHeight);
+              // In order to draw a circle (and not an oval), we will use the
+              // minimum of the available width and height for our Pie's
+              // diameter
+              int maxSize = Math.min(w, pieHeight);
 
-                int centerX = w / 2;
-                int centerY = pieHeight / 2;
-                int radius = maxSize / 2;
+              // Compute the center of the inbound circle
+              int centerX = w / 2;
+              int centerY = pieHeight / 2;
+              // Compute the radius
+              int radius = maxSize / 2;
 
-                mPieBounds = new RectF(
-                        centerX - radius,
-                        centerY - radius,
-                        centerX + radius,
-                        centerY + radius
-                );
-            }
+              // Construct the bounds of the pie, by specifying four points on
+              // the outbound square.
+              mPieBounds = new RectF(
+                      centerX - radius,
+                      centerY - radius,
+                      centerX + radius,
+                      centerY + radius
+              );
+          }
 
-            @Override
-            protected void onDraw(Canvas canvas) {
-                super.onDraw(canvas);
+          // This method is called, whenever the interface has to render the
+          // user interface (and thereby generate the image the user sees).
+          @Override
+          protected void onDraw(Canvas canvas) {
+              super.onDraw(canvas);
 
-                int height = getMeasuredHeight();
-                int width = getMeasuredWidth();
+              // Get the available width and height
+              int height = getMeasuredHeight();
+              int width = getMeasuredWidth();
 
-                int centerX = width / 2;
+              // Compute the center of the circle
+              int centerX = width / 2;
 
-                float textWidth = mTextPaint.measureText(mText);
+              // Compute the width of the text given in mText.
+              float textWidth = mTextPaint.measureText(mText);
 
-                float mTrueEnd = mPieEnd - mPieStart;
-                if(mPieStart > mPieEnd) {
-                    mTrueEnd = 360 - (mPieStart - mPieEnd);
-                }
+              // Compute the sweep-distance between the pie's start and end
+              // point
+              float sweep = mPieEnd - mPieStart;
+              // Handle going from 360 degrees to 1 degree
+              if(mPieStart &gt; mPieEnd) {
+                  sweep = 360 - (mPieStart - mPieEnd);
+              }
 
-                canvas.drawArc(
-                        mPieBounds,
-                        mPieStart,
-                        mTrueEnd,
-                        true,
-                        mPiePaint1
-                );
+              // Draw the first part of the pie.
+              canvas.drawArc(
+                      mPieBounds,
+                      mPieStart,
+                      mTrueEnd,
+                      true,
+                      mPiePaint1
+              );
 
-                canvas.drawArc(
-                        mPieBounds,
-                        (mPieStart + mTrueEnd) % 360,
-                        (360 - mTrueEnd),
-                        true,
-                        mPiePaint2
-                );
+              // Draw the second part of the pie
+              canvas.drawArc(
+                      mPieBounds,
+                      (mPieStart + mTrueEnd) % 360,
+                      (360 - mTrueEnd),
+                      true,
+                      mPiePaint2
+              );
 
-                canvas.drawText(mText, centerX - textWidth / 2, height, mTextPaint);
-            }
-        }
-        
-        
+              // Draw the text below the PieChart.
+              canvas.drawText(mText, centerX - textWidth / 2, height, mTextPaint);
+          }
+      }
