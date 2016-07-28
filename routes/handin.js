@@ -60,6 +60,18 @@ router.get("/get-all/:handinNr", function(req, res, next) {
   res.zip(zipFiles, "Handin-" + req.params.handinNr + ".zip");
 });
 
+router.get("/get-:studentName/:handinNr", function(req, res, next) {
+  var zipFiles = [];
+  var files = fs.readdirSync(__dirname + "/../hand-ins/" + req.params.handinNr + "/" + req.params.studentName);
+  files.forEach((file,index) => {
+    zipFiles.push({
+      path: __dirname + "/../hand-ins/" + req.params.handinNr + "/" + req.params.studentName + "/" + file,
+      name: file
+    });
+  });
+  res.zip(zipFiles, "Handin-" + req.params.studentName + "-" + req.params.handinNr + ".zip");
+});
+
 router.get("/list-all/:handinNr", function(req, res, next) {
   var dirs = fs.readdirSync(__dirname + "/../hand-ins/" + req.params.handinNr);
   var resultHTML = "<p>Total students with hand-ins: <strong>" + dirs.length +"</strong></p>";
