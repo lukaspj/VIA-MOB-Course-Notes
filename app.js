@@ -23,14 +23,16 @@ var slides = require('./routes/slides');
 var notes = require('./routes/notes');
 var handin = require('./routes/handin');
 
+// Expose files in 'public' folder to the public on the path /static
+app.use('/static', express.static(path.join(__dirname, 'public')));
+
 // Set the routes
 app.use('/', routes);
 app.use('/slides', slides);
 app.use('/notes', notes);
 app.use('/handin', handin);
 
-// Expose files in 'public' folder to the public on the path /static
-app.use('/static', express.static(path.join(__dirname, 'public')));
+
 
 // uncomment after placing your favicon in /public
 // Serves the favicon
