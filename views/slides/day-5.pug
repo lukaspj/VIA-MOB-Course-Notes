@@ -45,7 +45,7 @@ block content
           String result = sharedPreferences.getString("editTextValue", "Write something!");
     section
       h4 SharedPreferences
-      p Put the save code in onClose, and the read code in onCreate and you can save the application state. 
+      p Put the save code in onStop, and the read code in onCreate and you can save the application state. 
   section
     section
       h2 Internal Storage
@@ -114,7 +114,7 @@ block content
             fw.write(editTextState);
             // Close the Stream
             fw.close();
-          } catch (IOException e) { 
+          } catch (IOException e) {
             e.printStackTrace();
           }
   section

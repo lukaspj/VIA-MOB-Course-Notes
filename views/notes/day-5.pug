@@ -25,9 +25,9 @@ block content
       the information you need.
     h5 Writing data to a Shared Preference
     p.
-      When you want to write data to a Shared Preference, you first get the SharedPreference, then you create an editor 
-      for it, then you set the values you need. And in the end you either commit or apply it. Committing it, saves the 
-      SharedPreference synchronously, while the apply is asynchronous, which is therefore the preferred way of saving. 
+      When you want to write data to a Shared Preference, you first get the SharedPreference, then you create an editor
+      for it, then you set the values you need. And in the end you either commit or apply it. Committing it, saves the
+      SharedPreference synchronously, while the apply is asynchronous, which is therefore the preferred way of saving.
       Example:
     p
       pre
@@ -45,7 +45,7 @@ block content
           String result = sharedPreferences.getString("editTextValue", "Write something!");
     p.
       If we put the save code in the #[tt onClose] method, and the read code in the #[tt onCreate] method, then we are
-      able to save and restore the UI state, even across app sessions. This might be useful, for storing the user's 
+      able to save and restore the UI state, even across app sessions. This might be useful, for storing the user's
       interaction with the app, even if the app is closed and restarted.
     p
       a(href="https://developer.android.com/guide/topics/data/data-storage.html#pref") Read more
@@ -73,9 +73,9 @@ block content
         code.Java.
           // Open the file for reading
           FileInputStream fis = openFileInput(STORAGE_FILE);
-          
+
           // ... Read the data ...
-          
+
           // Close the file
           fis.close();
     p
@@ -88,7 +88,7 @@ block content
     p.
       The external storage is especially useful for files that your app does not depend on, such as a camera-app that
       takes a picture. The app would want to store it on the external storage, as it does not need the picture in the
-      future, except if the user wants to review the pictures he took recently. So it is non-critical for the app, and 
+      future, except if the user wants to review the pictures he took recently. So it is non-critical for the app, and
       it is therefore save to store on the external storage. Furthermore, storing on the external storage, can be a way
       of giving the user access to some file that the app has generated.
     p.
@@ -100,13 +100,13 @@ block content
       dt Private files
       dd Only readable by the app who saved it, cannot be accessed by the user.
       dt Cache files
-      dd. 
+      dd.
         Temporary files, that can be deleted at any time. The user may delete the cache files, to clear up space.
         This doesn't mean that you should be wasteful with the space in the cache, you should still make sure
         to cleanup in the cache when you're done with it.
     p.
       If we would want to write data to the private storage, then we would use the #[tt getExternalFilesDir] method to
-      get access to the directory, and finding our file within. Starting from Android 4.4 and above, we don't need the 
+      get access to the directory, and finding our file within. Starting from Android 4.4 and above, we don't need the
       #[tt WRITE_EXTERNAL_STORAGE] permission for writing to the private storage. Example:
     p
       pre
@@ -149,12 +149,12 @@ block content
       a(href="https://developer.android.com/guide/topics/data/data-storage.html#filesExternal") Read more
     h4 Other topics
     dl
-      dt 
+      dt
         a(href="https://developer.android.com/guide/topics/providers/content-providers.html") Content Providers
-      dd 
+      dd
         p.
-          Content providers manage access to a structured set of data. They encapsulate the data, and provide mechanisms 
-          for defining data security. Content providers are the standard interface that connects data in one process with 
+          Content providers manage access to a structured set of data. They encapsulate the data, and provide mechanisms
+          for defining data security. Content providers are the standard interface that connects data in one process with
           code running in another process.
         p.
           We skip them for this course, but if you need to learn more about them the above link is the place to go.
@@ -167,15 +167,15 @@ block content
     h2 The Preference Framework
     p.
       In order to have a standard way of changing application settings, the Android system provides the Preference
-      Framework, to create Activities for changing app settings. We will take a shallow look at it here, read the 
+      Framework, to create Activities for changing app settings. We will take a shallow look at it here, read the
       documentation to learn all the ways you can set up this settings view.
     p.
       In order to create a user interface that uses this standardized way of manipulating the settings, we need 3 parts.
       First, we need the preferences xml file, which is similar to a layout file but much more specialized and can only
       hold a small set of elements. Second, we need the SettingsFragment and lastly we need the SettingsActivity.
     p.
-      First, we will look at the preferences xml file. You can read about defining preferences in XML 
-      #[a(href="https://developer.android.com/guide/topics/ui/settings.html#DefiningPrefs") here]. But the some of the 
+      First, we will look at the preferences xml file. You can read about defining preferences in XML
+      #[a(href="https://developer.android.com/guide/topics/ui/settings.html#DefiningPrefs") here]. But the some of the
       elements you can work with are these:
     dl
       dt PreferencesScreen
@@ -244,7 +244,7 @@ block content
               startActivity(intent);
           }
     p.
-      In order to react to the user changing some settings, any Activity that is affected by the change, should 
+      In order to react to the user changing some settings, any Activity that is affected by the change, should
       implement the #[tt onSharedPreferenceChangeListener] interface and register as a listener for the SharedPreferences
       that the PreferenceManager uses:
     p
@@ -258,20 +258,30 @@ block content
     h2 Exercises
     h4 Exercise 1
     p.
-      Make an app that has an EditText View. Use SharedPreferences, to ensure that whatever the user writes in the 
+      Make an app that has an EditText View. Use SharedPreferences, to ensure that whatever the user writes in the
       EditText, in the app is persisted, even if the app is closed.
     h4 Exercise 2
     p.
-      Make an app that has an EditText View. Use InternalStorage, to ensure that whatever the user writes in the 
+      Make an app that has an EditText View. Use InternalStorage, to ensure that whatever the user writes in the
       EditText, in the app is persisted, even if the app is closed.
     h4 Exercise 3
     p.
-      Make an app that has an EditText View. Use ExternalStorage, to ensure that whatever the user writes in the 
+      Make an app that has an EditText View. Use ExternalStorage, to ensure that whatever the user writes in the
       EditText, in the app is persisted, even if the app is closed.
     h4 Exercise 4
     p.
-      Make an app, with a TextView. Let the content of the TextView be read in from the SharedPreferences, which can be 
+      Make an app, with a TextView. Let the content of the TextView be read in from the SharedPreferences, which can be
       edited through a SettingsActivity, that uses the Preference Framework
+    p.
+      h4 Exercise 5 (no solution given)
+      Continued from exercise 4: Add a another TextView in MainActivity and make
+      that TextView get the text from a settings just like the other View which
+      gets its text from the PreferenceManager. (Basically, copy all the code
+      you need).
+    h4 Exercise 6 (no solution given)
+    p.
+      Continued from exercise 1: Add another EditText, that saves its state to
+      the SharedPreferences.
     h4 Solutions
     ul
       li
@@ -285,7 +295,7 @@ block content
   section.column.small-12
     h2 Hand-in
     p.
-      Think about what kind of app you want to create in your group for your group project. Write a short document 
+      Think about what kind of app you want to create in your group for your group project. Write a short document
       (.pdf) about what your idea is, and what sort of technologies you believe you need in order to implement the app.
     p.callout.warning.
       Deadline: Monday #[strong (week 2)] 14:00 (after class)
