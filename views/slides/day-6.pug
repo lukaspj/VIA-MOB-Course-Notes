@@ -1,0 +1,242 @@
+extends layout
+
+block content
+  section
+    h2 Services
+    i Day 6
+  section
+    h2 Agenda
+    ul
+      li Services
+      li Creating a service
+      li Running in a background thread
+      li IntentService
+      li Playing some music
+      li Bound services
+  section
+    h2 Services
+    ul
+      li Background components
+      li Can run for extended periods of time
+      li Killed with the app
+      li Can run while the app is hidden
+      li Less likely to be killed by the system
+      li Can still be killed by the system
+  section
+    section
+      h2 Creating a service
+      dl
+        dt onStartCommand()
+        dd.
+          Some component ran "startService"
+        dt onBind()
+        dd.
+          A component wants to bind with the service
+        dt onCreate()
+        dd.
+          Called when the service is first created
+        dt onDestroy()
+        dd. 
+          Called when the service is no longer used, and is destroyed
+    section
+      h4 Creating a service - example
+      pre
+        code.Java.
+          public class MyService extends Service {
+
+              @Nullable
+              @Override
+              public IBinder onBind(Intent intent) {
+                  return null;
+              }
+
+              @Override
+              public int onStartCommand(Intent intent, int flags, int startId) {
+                  return START_STICKY;
+              }
+
+              @Override
+              public void onCreate() {
+              }
+
+              @Override
+              public void onDestroy() {
+                  super.onDestroy();
+              }
+          }
+    section
+      h4 Creating a service - START_
+      dl
+        dt START_NOT_STICKY
+        dd Do not recreate
+        dt START_STICKY
+        dd Recreate, continue with the next intent in the list
+        dt START_REDELIVER_INTENT
+        dd Recreate, repeat the last intent
+    section
+      h4 Creating a service - starting the service
+      pre
+        code.Java.
+          Intent intent = new Intent(this, MyService.class);
+          startService(intent);
+    section
+      h4 Creating a service - doing something
+      pre
+        code.Java.
+          @Override
+          public int onStartCommand(Intent intent, int flags, int startId) {
+              // Run thrice
+              for(int i = 0; i < 3; ++i) {
+                  // Sleep for three seconds
+                  try {
+                      Thread.sleep(3000);
+                  } catch (InterruptedException e) {
+                      e.printStackTrace();
+                  }
+                  // Print a message
+                  Toast.makeText(this, "Service did some work " + i, Toast.LENGTH_SHORT).show();
+              }
+              // Terminate the service
+              stopSelf();
+              return START_NOT_STICKY;
+          }
+  section
+    section
+      h2 Running in a background thread
+      ul
+        li Avoid blocking the UI thread
+        li 5 seconds is the max
+        li The user will notice even a couple of hundred milliseconds delay
+    section
+      h2 The Handler
+      pre
+        code.Java.
+          private final class ServiceHandler extends Handler {
+              public ServiceHandler(Looper looper) {
+                  super(looper);
+              }
+
+              @Override
+              public void handleMessage(Message msg) {
+                  // ... Do some work ... 
+                  stopSelf(msg.arg1);
+              }
+          }
+    section
+      h4 The Handler - create
+      pre
+        code.Java.
+          @Override
+          public void onCreate() {
+              // Create the thread
+              HandlerThread thread = new HandlerThread("MyService",
+                      Process.THREAD_PRIORITY_BACKGROUND);
+              // Start the thread
+              thread.start();
+
+              // Create the ServiceHandler, and feed it the Looper of the thread
+              mServiceHandler = new ServiceHandler(thread.getLooper(), this);
+          }
+    section
+      h4 The handler - sending messages
+      pre
+        code.Java.
+          @Override
+          public int onStartCommand(Intent intent, int flags, int startId) {
+              // Retrieve a new message object
+              Message msg = mServiceHandler.obtainMessage();
+              // Set the message's arg1 to our startId, so it can be accessed in the thread
+              msg.arg1 = startId;
+              // Send the message
+              mServiceHandler.sendMessage(msg);
+
+              return START_STICKY;
+          }
+  section
+    section
+      h2 IntentService
+      pre
+        code.Java.
+          public class MyService extends IntentService {
+              public MyService() {
+                  super("MyService");
+              }
+
+              @Override
+              protected void onHandleIntent(Intent intent) {
+                  // Do some work
+              }
+          }
+  section
+    h2 Playing audio
+    pre
+      code.Java.
+        // Create a MediaPlayer, by loading the soundfile from resources
+        mMediaPlayer = MediaPlayer.create(this, R.raw.sky);
+        // Start playing the file
+        mMediaPlayer.start();
+  section
+    section
+      h2 Bound services
+      p Useful for having close interaction between the component and the service
+    section
+      h4 Bound services - The Binder
+      pre
+        code.Java.
+          public class MyBinder extends Binder {
+              MyBinderService getService() {
+                  return MyBinderService.this;
+              }
+          }
+    section
+      h4 Bound services - Returning the Binder
+      p In the service:
+      pre
+        code.Java.
+          private final IBinder mBinder = new MyBinder();
+      pre
+        code.Java.
+          @Nullable
+          @Override
+          public IBinder onBind(Intent intent) {
+              return mBinder;
+          }
+    section
+      h4 Using bound services - ServiceConnection
+      p In the component:
+      pre
+        code.Java.
+          private ServiceConnection mConnection = new ServiceConnection() {
+              @Override
+              public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                  MyBinderService.MyBinder binder = (MyBinderService.MyBinder) iBinder;
+                  mService = binder.getService();
+                  mBound = true;
+              }
+
+              @Override
+              public void onServiceDisconnected(ComponentName componentName) {
+                  mBound = false;
+              }
+          };
+    section
+      h4 Binding to the service
+      pre
+        code.Java.
+          @Override
+          protected void onStart() {
+              super.onStart();
+
+              Intent intent = new Intent(this, MyBinderService.class);
+              bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+          }
+
+          @Override
+          protected void onStop() {
+              super.onStop();
+
+              if(mBound) {
+                  unbindService(mConnection);
+                  mBound = false;
+              }
+          }

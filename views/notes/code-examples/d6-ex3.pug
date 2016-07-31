@@ -1,0 +1,60 @@
+extends layout
+
+block content
+  h1 Solution for exercise 3 day 6
+  h2 MainActivity
+  pre
+    code.Java.
+      public class MainActivity extends AppCompatActivity {
+
+          @Override
+          protected void onCreate(Bundle savedInstanceState) {
+              super.onCreate(savedInstanceState);
+              setContentView(R.layout.activity_main);
+              // Create a new explicit Intent
+              Intent intent = new Intent(this, MyService.class);
+              // Start the service once
+              startService(intent);
+              // Start the service twice!
+              startService(intent);
+          }
+      }  
+  h2 MyService.java
+  pre
+    code.Java.
+      public class MyService extends IntentService {
+          // Store a handler with the MainLooper in order to be able to execute commands on the main thread
+          private final Handler mHandler;
+
+          public MyService() {
+              super("MyService");
+              // Set the mHandler to a new Handler
+              mHandler = new Handler(Looper.getMainLooper());
+          }
+
+          @Override
+          protected void onHandleIntent(Intent intent) {
+              // Run thrice
+              for(int i = 0; i < 3; ++i) {
+                  // Sleep for three seconds
+                  try {
+                      Thread.sleep(3000);
+                  } catch (InterruptedException e) {
+                      e.printStackTrace();
+                  }
+                  // Store the variables that we need to access within the thread as finals here
+                  final int j = i;
+                  final IntentService context = this;
+                  // Post the command on the main thread
+                  mHandler.post(new Runnable() {
+                      @Override
+                      public void run() {
+                          // Print a message
+                          Toast.makeText(context, "Service did some work " + j, Toast.LENGTH_SHORT).show();
+                      }
+                  });
+              }
+          }
+      }
+      
+      

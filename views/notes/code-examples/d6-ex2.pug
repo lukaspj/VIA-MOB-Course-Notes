@@ -1,0 +1,105 @@
+extends layout
+
+block content
+  h1 Solution for exercise 2 day 6
+  h2 MainActivity
+  pre
+    code.Java.
+      public class MainActivity extends AppCompatActivity {
+
+          @Override
+          protected void onCreate(Bundle savedInstanceState) {
+              super.onCreate(savedInstanceState);
+              setContentView(R.layout.activity_main);
+              // Create a new explicit Intent
+              Intent intent = new Intent(this, MyService.class);
+              // Start the service once
+              startService(intent);
+              // Start the service twice!
+              startService(intent);
+          }
+      }
+  h2 MyService.java
+  pre
+    code.Java.
+      public class MyService extends Service {
+      
+          // Store  our fields here, so we can access them later
+          private Looper mServiceLooper;
+          private ServiceHandler mServiceHandler;
+
+          @Nullable
+          @Override
+          public IBinder onBind(Intent intent) {
+              // We don't support binding, so just return null
+              return null;
+          }
+
+          private final class ServiceHandler extends Handler {
+              
+              // Store the service here for later
+              private Service mService;
+
+              public ServiceHandler(Looper looper, Service service) {
+                  super(looper);
+                  // Set our mService to the service parameter
+                  mService = service;
+              }
+
+              @Override
+              public void handleMessage(Message msg) {
+                  // Run thrice
+                  for(int i = 0; i < 3; ++i) {
+                      // Sleep for three seconds
+                      try {
+                          Thread.sleep(3000);
+                      } catch (InterruptedException e) {
+                          e.printStackTrace();
+                      }
+
+                      // Get the handler for the main thread
+                      Handler h = new Handler(mService.getMainLooper());
+                      // Store the index parameter in a final int, so it can be accessed in the other thread
+                      final int j = i;
+                      // Post an event that will be run on the main thread.
+                      h.post(new Runnable() {
+                          @Override
+                          public void run() {
+                              // Print a message on the front screen
+                              Toast.makeText(mService,"Service did some work " + j,Toast.LENGTH_SHORT).show();
+                          }
+                      });
+                  }
+                  // Stop the request, if there are no more requests left, then this will terminate the service.
+                  stopSelf(msg.arg1);
+              }
+          }
+
+          @Override
+          public void onCreate() {
+              // Create our handler thread
+              HandlerThread thread = new HandlerThread("MyService",
+                      Process.THREAD_PRIORITY_BACKGROUND);
+              // Start running the thread
+              thread.start();
+
+              // Get the looper
+              mServiceLooper = thread.getLooper();
+              // Create the ServiceHandler, using the looper and passing it the Service too.
+              mServiceHandler = new ServiceHandler(mServiceLooper, this);
+          }
+
+          @Override
+          public int onStartCommand(Intent intent, int flags, int startId) {
+
+              // Retrieve a new message object
+              Message msg = mServiceHandler.obtainMessage();
+              // Set the message's arg1 to our startId, so it can be accessed in the thread
+              msg.arg1 = startId;
+              // Send the message
+              mServiceHandler.sendMessage(msg);
+
+              return START_STICKY;
+          }
+      }
+      

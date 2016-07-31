@@ -1,0 +1,344 @@
+extends layout
+
+block header
+  h2 Course page for: #[strong Mobile Applications]
+
+block content
+  section.column.small-12
+    h2 Lecture notes: day 5
+    h4 Services
+    p.
+      Services are background components that can perform operations which runs for extended periods of time.
+      Usually, another application component, such as your Activity, can start the service and let it run in the 
+      background. Services will keep running, even if the user switches to another application.
+    p.
+      Services can either be "started", such that they run indefinitely and separately from the component who created 
+      it, or it can be "bound" to some component, allowing close interaction between service and component. Furthermore,
+      a bound service, will only live as long as something is bound to it.
+    h4 Creating a new Service
+    p.
+      To create a new Service, simply create a new class that extends the #[tt Service] class. The #[tt Service] class
+      has various callback methods that you can override. The most important ones are:
+    dl
+      dt onStartCommand()
+      dd.
+        Called whenever some component requests that the service is started. If this method is implemented, then it's
+        your responsibility to stop the service with #[tt stopSelf()] or #[tt stopService].
+      dt onBind()
+      dd.
+        Called whenever another component wants to bind with the service. Should return an #[tt IBinder] object, if
+        the service allows binding or null if it does not.
+      dt onCreate()
+      dd.
+        Called when the service is first created. If the service is already running, this wont be called.
+      dt onDestroy()
+      dd.
+        Called when the service is no longer used, and as a result is being destroyed. This is the final call the
+        service receives.
+    p.
+      An example of a Service class:
+    p
+      pre
+        code.Java.
+          public class MyService extends Service {
+
+              @Nullable
+              @Override
+              public IBinder onBind(Intent intent) {
+                  return null;
+              }
+
+              @Override
+              public int onStartCommand(Intent intent, int flags, int startId) {
+                  return START_STICKY;
+              }
+
+              @Override
+              public void onCreate() {
+              }
+
+              @Override
+              public void onDestroy() {
+                  super.onDestroy();
+              }
+          }
+    p.
+      When the service has been created, you should declare it in the manifest as usual. Example:
+    p
+      pre
+        code.XML.
+          &lt;manifest ... &gt;
+            ...
+            &lt;application ... &gt;
+                &lt;service android:name=".ExampleService" /&gt;
+                ...
+            &lt;/application&gt;
+          &lt;/manifest&gt;
+    p.
+      In the onStartCommand earlier, we returned the value #[tt START_STICKY]. This is one of the three possible return
+      values:
+    dl
+      dt START_NOT_STICKY
+      dd.
+        If the service is killed by the system, because of lack of resources or similar, it will not be recreated.
+      dt START_STICKY
+      dd.
+        If the service is killed by the system, because of lack of resources or similar, the service will be recreated
+        as soon as possible. When the system is restarted, it will either call onStartCommand with a null intent or
+        the pending intents if any. Useful for services meant to run indefinitely, like music services.
+      dt START_REDELIVER_INTENT
+      dd.
+        If the service is killed by the system, because of lack of resources or similar, the service will be recreated
+        as soon as possible. When the system is restarted, it will call onStartCommand with the last intent that was
+        delivered to the services, and then any pending intents. Useful for intents that are performing a job that 
+        should be immediately resumed, such as downloading a file.
+    p.
+      You can read more #[a(href="https://developer.android.com/guide/components/services.html") here].
+    h4 Starting a Service
+    p.
+      Starting a Service, works almost exactly like you would start an Activity. You will create the new intent, and
+      call #[tt startService(intent)]:
+    p
+      pre
+        code.Java.
+          Intent intent = new Intent(this, MyService.class);
+          startService(intent);
+        
+    h4 Doing something in a Service
+    p.
+      When startService is called, the #[tt onStartCommand] will be called on the Service. So you need to begin your 
+      work there. It's however important to note that the Service runs in the main thread. Which means that whenever
+      your Service is doing something, your activities and user-interface will have to wait until the Service is done.
+    p.
+      In the below example of an implementation of onStartCommand, the code will run for 3*3 seconds. Which means that 
+      if we were to start the service in the #[tt onCreate] method in our main activity, it would take a full 9 seconds
+      before the app would actually load up.
+    p
+      pre
+        code.Java.
+          @Override
+          public int onStartCommand(Intent intent, int flags, int startId) {
+              // Run thrice
+              for(int i = 0; i < 3; ++i) {
+                  // Sleep for three seconds
+                  try {
+                      Thread.sleep(3000);
+                  } catch (InterruptedException e) {
+                      e.printStackTrace();
+                  }
+                  // Print a message
+                  Toast.makeText(this, "Service did some work " + i, Toast.LENGTH_SHORT).show();
+              }
+              // Terminate the service
+              stopSelf();
+              return START_NOT_STICKY;
+          }
+    h4 Doing something in a Service, without blocking the app
+    p.
+      The Android system does not like when an application does not respond. In fact, if your app has not responded
+      within 5 seconds, the Android system will suggest the user just force quits the application. So you want your
+      app to be responsive at all times. 
+    p.
+      In order to keep your app responsive, you will want to run your processing in a separate thread. The Android
+      system has more than one way to accomplish this. First of all, you can simply create a thread in your Service.
+      A good way to create such a thread, is to use the #[tt Handler] class in order to queue up tasks.
+    h4 The Handler
+    p.
+      First we create a new class that extends the Handler class which will perform our task:
+    p
+      pre
+        code.Java.
+          private final class ServiceHandler extends Handler {
+              public ServiceHandler(Looper looper) {
+                  super(looper);
+              }
+
+              @Override
+              public void handleMessage(Message msg) {
+                  // ... Do some work ... 
+                  stopSelf(msg.arg1);
+              }
+          }
+    p.
+      In order to use the Handler, you first need to create a #[tt HandlerThread] that it can utilize. You only
+      have to do this once, so it will typically be done in the #[tt onCreate] method of the Service, like so:
+    p
+      pre
+        code.Java.
+          @Override
+          public void onCreate() {
+              // Create the thread
+              HandlerThread thread = new HandlerThread("MyService",
+                      Process.THREAD_PRIORITY_BACKGROUND);
+              // Start the thread
+              thread.start();
+
+              // Create the ServiceHandler, and feed it the Looper of the thread
+              mServiceHandler = new ServiceHandler(thread.getLooper(), this);
+          }
+    p.
+      Now that we have created our ServiceHandler, we can send messages to it, that it will handle in the 
+      #[tt handleMessage] method. Like so:
+    p
+      pre
+        code.Java.
+          @Override
+          public int onStartCommand(Intent intent, int flags, int startId) {
+              // Retrieve a new message object
+              Message msg = mServiceHandler.obtainMessage();
+              // Set the message's arg1 to our startId, so it can be accessed in the thread
+              msg.arg1 = startId;
+              // Send the message
+              mServiceHandler.sendMessage(msg);
+
+              return START_STICKY;
+          }
+    p.
+      Now we can simply do any work we need in the #[tt handleMessage] method. You can read more 
+      #[a(href="https://developer.android.com/guide/components/services.html#ExtendingService") here].
+    h4 Using IntentService
+    p.
+      Rather than managing our own threads and managing everything ourselves, like we did in the previous section, we
+      can use the #[tt IntentService] class. Using this class, you simply have to implement two methods, the constructor
+      and the #[tt onHandleIntent] method.
+    p
+      pre
+        code.Java.
+          public class MyService extends IntentService {
+              public MyService() {
+                  super("MyService");
+              }
+
+              @Override
+              protected void onHandleIntent(Intent intent) {
+                  // Do some work
+              }
+          }
+    p.
+      The IntentService is useful any case where you don't need a Service to perform multiple actions at the same time,
+      as it will handle the intents one by one. You can read more 
+      #[a(href="https://developer.android.com/guide/components/services.html#ExtendingIntentService") here].
+    h4 A quick note on playing audio
+    p.
+      Just a quick tip, in order to play audio files, you can run the following two short lines of code:
+    p
+      pre
+        code.Java.
+          // Create a MediaPlayer, by loading the soundfile from resources
+          mMediaPlayer = MediaPlayer.create(this, R.raw.sky);
+          // Start playing the file
+          mMediaPlayer.start();
+    p.
+      You can read more about audio playback 
+      #[a(href="https://developer.android.com/guide/topics/media/mediaplayer.html") here].
+    
+    h4 Bound Services
+    em. 
+      The following section is only briefly described as it is not that important to know for this course.
+      If interested, you can read more #[a(href="https://developer.android.com/guide/components/bound-services.html") here]
+    p.
+      If you need to interact with the service, then you can either send broadcasts from the Service to a Broadcast 
+      Receiver, or create a bound service.
+    p.
+      In order to create a bound service, you need to create a new class that extends Binder, like so:
+    p
+      pre
+        code.Java.
+          public class MyBinder extends Binder {
+              MyBinderService getService() {
+                  return MyBinderService.this;
+              }
+          }
+    p.
+      Then, you can initialize it in the service:
+    p
+      pre
+        code.Java.
+          private final IBinder mBinder = new MyBinder();
+    p.
+      And return it in the #[tt onBind] method:
+    p
+      pre
+        code.Java.
+          @Nullable
+          @Override
+          public IBinder onBind(Intent intent) {
+              return mBinder;
+          }
+    p.
+      Now, in the Activity, you have to create a ServiceConnection class. An example of how to create an anonymous one
+      is shown here:
+    p
+      pre
+        code.Java.
+          private ServiceConnection mConnection = new ServiceConnection() {
+              @Override
+              public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                  MyBinderService.MyBinder binder = (MyBinderService.MyBinder) iBinder;
+                  mService = binder.getService();
+                  mBound = true;
+              }
+
+              @Override
+              public void onServiceDisconnected(ComponentName componentName) {
+                  mBound = false;
+              }
+          };
+    p.
+      Then you can bind and unbing the Service in the #[tt onStart] and #[tt onStop]
+    p
+      pre
+        code.Java.
+          @Override
+          protected void onStart() {
+              super.onStart();
+
+              Intent intent = new Intent(this, MyBinderService.class);
+              bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+          }
+
+          @Override
+          protected void onStop() {
+              super.onStop();
+
+              if(mBound) {
+                  unbindService(mConnection);
+                  mBound = false;
+              }
+          }
+    p.
+      An example of a bound service can be found here:
+    a(href="/notes/code-example-d6-ex5") Bound Service example
+      
+  section.column.small-12
+    h2 Exercises
+    h4 Exercise 1
+    p.
+      Create a Service that runs in the main thread, and shows a toast three times with three seconds between.
+    h4 Exercise 2
+    p.
+      Like exercise 1, but using a Handler to run the code that shows the toast in a background thread instead.
+      (Getting the toasts to show from a background thread is tricky, so skip that if you can't figure it out)
+    h4 Exercise 3
+    p.
+      Like Exercise 2, but use IntentService instead.
+    h4 Exercise 4
+    p.
+      Like Exercise 3, but make it play music
+    h4 Exercise 5
+    p.
+      Can you make the music play even when the app is closed?
+    h4 Exercise 6
+    p.
+      What happens, with your current implementation, if you open the app multiple times? Is there a difference between
+      START_STICKY, START_NOT_STICKY and START_REDELIVER_INTENT?
+    h4 Solutions
+    ul
+      li
+        a(href="/notes/code-example-d6-ex1") Exercise 1
+      li
+        a(href="/notes/code-example-d6-ex2") Exercise 2
+      li
+        a(href="/notes/code-example-d6-ex3") Exercise 3
+      li
+        a(href="/notes/code-example-d6-ex4") Exercise 4

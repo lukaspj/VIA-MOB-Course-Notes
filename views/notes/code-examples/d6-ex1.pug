@@ -1,0 +1,48 @@
+extends layout
+
+block content
+  h1 Solution for exercise 1 day 6
+  h2 MainActivity
+  pre
+    code.Java.
+      public class MainActivity extends AppCompatActivity {
+
+          @Override
+          protected void onCreate(Bundle savedInstanceState) {
+              super.onCreate(savedInstanceState);
+              setContentView(R.layout.activity_main);
+              // Create a new explicit Intent
+              Intent intent = new Intent(this, MyService.class);
+              // Start the service once
+              startService(intent);
+          }
+      }
+  h2 MyService.java
+  pre
+    code.Java.
+      public class MyService extends Service {
+          @Nullable
+          @Override
+          public IBinder onBind(Intent intent) {
+              return null;
+          }
+
+          @Override
+          public int onStartCommand(Intent intent, int flags, int startId) {
+              // Run thrice
+              for(int i = 0; i < 3; ++i) {
+                  // Sleep for three seconds
+                  try {
+                      Thread.sleep(3000);
+                  } catch (InterruptedException e) {
+                      e.printStackTrace();
+                  }
+                  // Print a message
+                  Toast.makeText(this, "Service did some work " + i, Toast.LENGTH_SHORT).show();
+              }
+              // Terminate the service
+              stopSelf();
+              return START_NOT_STICKY;
+          }
+      }
+      
