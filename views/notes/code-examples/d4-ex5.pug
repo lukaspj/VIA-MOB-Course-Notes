@@ -1,0 +1,75 @@
+extends layout
+
+block content
+  h1 Solution for exercise 5 day 4
+  h2 MainActivity.Java
+  pre
+    code.Java.
+      public class MainActivity extends AppCompatActivity {
+          @Override
+          protected void onCreate(Bundle savedInstanceState) {
+              super.onCreate(savedInstanceState);
+              setContentView(R.layout.activity_main);
+          }
+      }
+  h2 activity_main.xml
+  pre
+    code.XML.
+      &lt;?xml version="1.0" encoding="utf-8"?&gt;
+      &lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:paddingBottom="@dimen/activity_vertical_margin"
+          android:paddingLeft="@dimen/activity_horizontal_margin"
+          android:paddingRight="@dimen/activity_horizontal_margin"
+          android:paddingTop="@dimen/activity_vertical_margin"
+          android:orientation="vertical"
+          tools:context="com.example.gomer.intents.MainActivity"&gt;
+
+          &lt;TextView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:text="@string/app_name"/&gt;
+      &lt;/LinearLayout&gt;
+
+
+  h2 NoPhonecallsReceiver.Java
+  pre
+    code.Java.
+      public class NoPhonecallsReceiver extends BroadcastReceiver {
+          @Override
+          public void onReceive(Context context, Intent intent) {
+              // Stop the call
+              setResultData(null);
+          }
+      }
+  h2 AndroidManifest.xml
+  pre
+    code.XML.
+      &lt;?xml version="1.0" encoding="utf-8"?&gt;
+      &lt;manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.example.gomer.intents"&gt;
+
+          &lt;application
+              android:allowBackup="true"
+              android:icon="@mipmap/ic_launcher"
+              android:label="@string/app_name"
+              android:supportsRtl="true"
+              android:theme="@style/AppTheme"&gt;
+              &lt;activity android:name=".MainActivity"&gt;
+                  &lt;intent-filter&gt;
+                      &lt;action android:name="android.intent.action.MAIN" /&gt;
+
+                      &lt;category android:name="android.intent.category.LAUNCHER" /&gt;
+                  &lt;/intent-filter&gt;
+              &lt;/activity&gt;
+
+              &lt;receiver android:name=".NoPhonecallsReceiver"&gt;
+                  &lt;intent-filter&gt;
+                      &lt;action android:name="android.intent.action.NEW_OUTGOING_CALL" /&gt;
+                  &lt;/intent-filter&gt;
+              &lt;/receiver&gt;
+          &lt;/application&gt;
+
+      &lt;/manifest&gt;
