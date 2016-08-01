@@ -1,0 +1,401 @@
+extends layout
+
+block header
+  h2 Course page for: #[strong Mobile Applications]
+
+block content
+  section.column.small-12
+    h2 Lecture notes: day 5
+    h4 Maps
+    p.
+      In order to display a GoogleMaps map you have to do some project configurations first.
+      First of all, you need to generate an API key, second you need to add the library to your build system. Lastly,
+      you need to actually add the Google Maps map to your application.
+    h2 Adding the API key
+    p.
+      Go to #[a(href="https://developers.google.com/maps/documentation/android-api/signup") android API signup] and
+      press the "Get A Key" button.
+    h2 Adding the library to the build system
+    p.
+      Open build.gradle inside the app folder. It should look like this:
+    p
+      pre
+        code.Groovy.
+          apply plugin: 'com.android.application'
+
+          android {
+              compileSdkVersion 24
+              buildToolsVersion "24.0.1"
+
+              defaultConfig {
+                  applicationId "com.example.lukas.mapsfragment"
+                  minSdkVersion 15
+                  targetSdkVersion 24
+                  versionCode 1
+                  versionName "1.0"
+              }
+              buildTypes {
+                  release {
+                      minifyEnabled false
+                      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+                  }
+              }
+          }
+
+          dependencies {
+              compile fileTree(dir: 'libs', include: ['*.jar'])
+              testCompile 'junit:junit:4.12'
+              compile 'com.android.support:appcompat-v7:24.1.0'
+          }
+    p.
+      In the dependencies block at the bottom, add the libraries you want. In this case, we want the library:
+      'com.google.android.gms:play-services-maps:9.2.1'. If we add this library, to the dependencies, it will look like
+      this:
+    p
+      pre
+        code.Groovy.
+          dependencies {
+              compile fileTree(dir: 'libs', include: ['*.jar'])
+              testCompile 'junit:junit:4.12'
+              compile 'com.android.support:appcompat-v7:24.1.0'
+              compile 'com.google.android.gms:play-services-maps:9.2.1'
+          }
+    p.
+      Now, simply add the map to your layout as a fragment:
+    p
+      pre
+        code.XML.
+          &lt;fragment
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:id="@+id/map"
+                  android:name="com.google.android.gms.maps.MapFragment" /&gt;
+    p.
+      And that's it! You should now be able to see the fragment inside your app. You can read more about the maps
+      #[a(href="https://developers.google.com/maps/documentation/android-api/map") here].
+    h4 Drawing something on the map
+    p.
+      To draw something on the map, the MainActivity should implement the interface: OnMapReadyCallback.
+      The OnMapReadyCallback interface, has the method #[tt onMapReady(GoogleMap googleMap)] that you can implement.
+      Then, in the #[tt onCreate] method, add the following three lines of code:
+    p
+      pre
+        code.Java.
+          @Override
+          protected void onCreate(Bundle savedInstanceState) {
+              super.onCreate(savedInstanceState);
+              setContentView(R.layout.activity_main);
+
+              // Find the Fragment
+              MapFragment mapFragment = (MapFragment) getFragmentManager()
+                      .findFragmentById(R.id.map);
+              // Fetch the map asynchronously
+              mapFragment.getMapAsync(this);
+          }
+    p.
+      Now, in the #[tt onMapReady] callback, we can paint stuff on the map like so:
+    p
+      pre
+        code.Java.
+          @Override
+          public void onMapReady(GoogleMap googleMap) {
+              // Add a marker
+              googleMap.addMarker(new MarkerOptions()
+                      .position(new LatLng(0, 0))
+                      .title("Marker"));
+              // Instantiates a new CircleOptions object and defines the center and radius
+              CircleOptions circleOptions = new CircleOptions()
+                      .center(new LatLng(37.4, -122.1)) // This is about Palo Alto
+                      .radius(10000); // In meters
+
+              // Get back the mutable Circle
+              Circle circle = googleMap.addCircle(circleOptions);
+          }
+    p.
+      You can read more about markers 
+      #[a(href="https://developers.google.com/maps/documentation/android-api/marker") here] and shapes
+      #[a(href="https://developers.google.com/maps/documentation/android-api/shapes") here].
+    h2 Getting the last position
+    p.
+      If we want to simply get the last position that the user was seen at, then we can do that in a few easy steps.
+      First, we add the given permission to the manifest file, it is either "android.permission.ACCESS_FINE_LOCATION"
+      or "android.permission.ACCESS_COARSE_LOCATION" depending on how accurate you need the GPS to be.
+    p.
+      Next, we need to add the dependency to the build.gradle file, like earlier. This time, the dependency block
+      should simply look like:
+    p
+      pre
+        code.Groovy.
+          dependencies {
+              compile fileTree(dir: 'libs', include: ['*.jar'])
+              testCompile 'junit:junit:4.12'
+              compile 'com.android.support:appcompat-v7:24.1.0'
+              compile 'com.google.android.gms:play-services-location:9.2.1'
+          }
+    p.
+      Now we are ready to start our coding, firstly, we should make our MainActivity implement the following two
+      interfaces: #[tt GoogleApiClient.ConnectionCallbacks] and #[tt GoogleApiClient.OnConnectionFailedListener].
+      Then, we should add the following code to initialize the Google API, it could for example be put in the 
+      #[tt onCreate] method.
+    p
+      pre
+        code.Java.
+          if (mGoogleApiClient == null) {
+              mGoogleApiClient = new GoogleApiClient.Builder(this)
+                      .addConnectionCallbacks(this)
+                      .addOnConnectionFailedListener(this)
+                      .addApi(LocationServices.API)
+                      .build();
+          }
+    p.
+      Then, to connect and disconnect from the api, we should add the following:
+    p
+      pre
+        code.Java.
+          @Override
+          protected void onStart() {
+              super.onStart();
+              mGoogleApiClient.connect();
+          }
+
+          @Override
+          protected void onStop() {
+              super.onStop();
+              mGoogleApiClient.disconnect();
+          }
+    p.
+      Now, in the #[tt onConnected] method, we should add the following lines of code:
+    p
+      pre
+        code.Java.
+          @Override
+          public void onConnected(@Nullable Bundle bundle) {
+              mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+              if (mLastLocation != null) {
+                  // Do something with the location
+              }
+          }
+    p.
+      Now, we got the last recorded location of the user.
+    h2 Getting location updates
+    p.
+      In order to track the user, we would like to get running updates on the whereabouts of the user. To accomplish
+      this, we will just add to the code we used to get the last known position of the user.
+    p.
+      First, we add the #[tt LocationListener] interface to the MainActivity. Which gives us the following method:
+    p
+      pre
+        code.Java.
+          @Override
+          public void onLocationChanged(Location location) {
+              mLastLocation = location;
+              // Do something with the location
+          }
+    p.
+      So now, the MainActivity is able to listen to changes in location. Now we simply need to register it somehow. 
+      First we add the following method:
+    p
+      pre
+        code.Java.
+          protected void createLocationRequest() {
+              mLocationRequest = new LocationRequest();
+              mLocationRequest.setInterval(1000); // How often would we like a position update
+              mLocationRequest.setFastestInterval(500); // What is our maximum capability
+              mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY); // The accuracy
+          }
+    p.
+      This #[tt createLocationRequest] method, is where we can tweak how often the position updates and how accurate it
+      is. We should call this method somewhere, in the #[tt onCreate] would be fine.
+    p.
+      Now we want to add the following two methods:
+    p
+      pre
+        code.Java.
+          private void startLocationUpdates() {
+              if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                  // TODO: Consider calling
+                  //    ActivityCompat#requestPermissions
+                  // here to request the missing permissions, and then overriding
+                  //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                  //                                          int[] grantResults)
+                  // to handle the case where the user grants the permission. See the documentation
+                  // for ActivityCompat#requestPermissions for more details.
+                  return;
+              }
+              LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+              mRequestingLocationUpdates = true;
+          }
+
+          private void stopLocationUpdates() {
+              LocationServices.FusedLocationApi.removeLocationUpdates(
+                      mGoogleApiClient, this);
+              mRequestingLocationUpdates = false;
+          }
+    p.
+      These methods does what it says on the tin, one starts the updates and one stops them. Now we just need to call 
+      them the appropriate places. First in the #[tt onConnected]:
+    p
+      pre
+        code.Java.
+          @Override
+          public void onConnected(@Nullable Bundle bundle) {
+              if(!mRequestingLocationUpdates) {
+                  startLocationUpdates();
+              }
+          }
+    p. 
+      Then in the #[tt onResume] and #[tt onPause]:
+    p
+      pre
+        code.Java.
+          @Override
+          protected void onResume() {
+              super.onResume();
+              if(mGoogleApiClient.isConnected() && !mRequestingLocationUpdates) {
+                  startLocationUpdates();
+              }
+          }
+
+          @Override
+          protected void onPause() {
+              super.onPause();
+              stopLocationUpdates();
+          }
+    p.
+      And that should be it. You can read more about making your app location-aware
+      #[a(href="https://developer.android.com/training/location/index.html") here].
+    h2 Geofences
+    p.
+      Geofences, refer to geographical areas that you can track, and if the user enters or leaves that area then it 
+      will trigger something in your app. There are really two ways of doing Geofences.
+    h4 Manual Geofences
+    p.
+      Simply keep a track of the user and check whether he is inside some Geofence. For example, you can check the
+      user's position to some point using the #[tt location.getDistanceTo] method.
+    h4 GoogleAPI Geofences
+    p.
+      Using the GoogleAPI's Geofences can either be a more complicated or a simpler task, depending on what you are
+      trying to achieve.
+    p.
+      We will extend the code from before, with the location updates. First, we add yet another interface to the 
+      MainActivity, the ResultCallback<Status> interface.
+      Then, we add the following two methods in the MainActivity:
+    p
+      pre
+        code.Java.
+          private GeofencingRequest getGeofencingRequest() {
+              GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
+              // If the user is initially inside, then trigger
+              builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+              builder.addGeofences(mGeofenceList);
+              return builder.build();
+          }
+
+          private PendingIntent getGeofencePendingIntent() {
+              // Reuse the PendingIntent if we already have it.
+              if (mGeofencePendingIntent != null) {
+                  return mGeofencePendingIntent;
+              }
+              Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
+              // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
+              // calling addGeofences() and removeGeofences().
+              return PendingIntent.getService(this, 0, intent, PendingIntent.
+                      FLAG_UPDATE_CURRENT);
+          }
+    p.
+      Now, to create a Geofence, we would first create an empty list of Geofences, and then add a new Geofence to it:
+    p
+      pre
+        code.Java.
+          mGeofenceList = new ArrayList<>();
+          mGeofenceList.add(new Geofence.Builder()
+                  .setRequestId("FirstGeoFence")
+                  .setCircularRegion(
+                          mBeginLocation.getLatitude(),
+                          mBeginLocation.getLongitude(),
+                          20) // 20 meters radius
+                  .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                  .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
+                          Geofence.GEOFENCE_TRANSITION_EXIT)
+                  .build());
+    p.
+      Then, we can add all the Geofences in the list using the following piece of code:
+    p
+      pre
+        code.Java.
+          if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+              // TODO: Consider calling
+              //    ActivityCompat#requestPermissions
+              // here to request the missing permissions, and then overriding
+              //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+              //                                          int[] grantResults)
+              // to handle the case where the user grants the permission. See the documentation
+              // for ActivityCompat#requestPermissions for more details.
+              return;
+          }
+          LocationServices.GeofencingApi.addGeofences(
+                  mGoogleApiClient,
+                  getGeofencingRequest(),
+                  getGeofencePendingIntent()
+          ).setResultCallback(this);
+    p.
+      Now, you just have to implement the GeofenceTransitionsIntentService, which is a simple IntentService class.
+      The #[tt onHandleIntent] could look something like this:
+    p
+      pre
+        code.Java.
+          @Override
+          protected void onHandleIntent(Intent intent) {
+              GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
+              if (geofencingEvent.hasError()) {
+                  Log.e("tag", "Some error occured");
+                  return;
+              }
+
+              // Get the transition type.
+              int geofenceTransition = geofencingEvent.getGeofenceTransition();
+
+              // Test that the reported transition was of interest.
+              if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
+                      geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+
+                  if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+                      Intent exitIntent = new Intent(this, PopupActivity.class);
+                      startActivity(exitIntent);
+                  }
+              }
+          }
+    p.
+      Please note that Geofences usually only really work if they have a big enough radius.
+      #[a(href="https://developer.android.com/training/location/geofencing.html") Read more about Geofencing]
+  section.column.small-12
+    h2 Exercises
+    h4 Exercise 1
+    p.
+      Create an Activity which shows a MapFragment.
+    h4 Exercise 2
+    p.
+      Create an Activity which shows a MapFragment and draws a marker and a circle somewhere on the map.
+    h4 Exercise 3
+    p.
+      Create an Activity that displays the last-known position of the user.
+    h4 Exercise 4
+    p.
+      Create an Activity that displays the current position of the user.
+    h4 Exercise 5
+    p.
+      Create an Activity that implements a Google API Geofence.
+    
+    h2 Solutions
+    ul
+      li
+        a(href="/notes/code-example-d7-ex1") Exercise 1
+      li
+        a(href="/notes/code-example-d7-ex2") Exercise 2
+      li
+        a(href="/notes/code-example-d7-ex3") Exercise 3
+      li
+        a(href="/notes/code-example-d7-ex4") Exercise 4
+      li
+        a(href="/notes/code-example-d7-ex5") Exercise 5
+      
