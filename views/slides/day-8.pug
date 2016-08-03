@@ -1,0 +1,79 @@
+extends layout
+
+block content
+  section
+    h2 Short-range communication
+    i Day 8
+  section
+    h2 Agenda
+    ul
+      li Ways of short-range communicating
+      li Bluetooth
+      li The BluetoothService framework
+  section
+    h2 Ways of short-range communicating
+    ul
+      li Sound
+      li Images (QR-codes)
+      li Bluetooth
+      li NFC
+      li Wi-Fi
+      li The internet
+      li SMS, MMS, telephony etc.
+  section
+    section
+      h2 Bluetooth
+      ul
+        li A simple standardized short-range communication platform
+        li Almost every phone has bluetooth
+        li Bluetooth has a lot of utility, and it's used in most short-range wireless devices
+    section
+      h4 Working with Bluetooth in Android
+      pre
+        code.Java.
+          // Fetch the bluetooth adapter
+          mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+          // Make sure that the device supports bluetooth
+          if (mBluetoothAdapter == null) {
+              return; // The device does not support bluetooth
+          }
+      pre
+        code.Java.
+          if (!mBluetoothAdapter.isEnabled()) {
+              Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+              startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+          }
+    section
+      pre
+        code.Java.
+          // Get a set of currently paired devices
+          Set pairedDevices = mBluetoothAdapter.getBondedDevices();
+    section
+      pre
+        code.Java.
+          // This will broadcast each device it finds
+          mBluetoothAdapter.startDiscovery();
+          
+          // Register to catch those broadcasts
+          IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+          registerReceiver(mReceiver, filter);
+  section
+    section
+      h2 The BluetoothService framework
+      ul
+        li I created a framework for you
+        li Available #[a(href="http://localhost:3000/notes/code-example-d8-fw") here]
+        li Based on the Android documentation
+        li Handles connecting, receiving and transmitting data
+        li Exposes four methods that you need
+    section
+      h4 The methods
+      dl
+        dt The #[em start] method
+        dd Start listening for connections to your device
+        dt The #[em stop] method
+        dd Stop listening for connections, and shut down existing connections
+        dt The #[em connect] method
+        dd Connect to some specific device
+        dt The #[em write] method
+        dd Write some array of bytes to the currently connected device

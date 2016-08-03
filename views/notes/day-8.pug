@@ -1,0 +1,152 @@
+extends layout
+
+block header
+  h2 Course page for: #[strong Mobile Applications]
+
+block content
+  section.column.small-12
+    h2 Lecture notes: day 8
+    h4 Short-range communication
+    p.
+      The topic of short-range communication really covers a lot of different possible technologies. Some of the ways
+      that you can communicate with other devices are:
+    ul
+      li Sound
+      li Images (QR-codes etc.)
+      li Bluetooth
+      li NFC
+      li Wi-Fi
+      li The internet
+      li SMS, MMS, phone calls etc
+    p.
+      In this lecture note, I wont cover e.g. how to communicate through sounds, because is pretty cumbersome to work with
+      and annoying for the user. The most useful technologies for short-range communication are, atm:
+    ul
+      li Bluetooth
+      li NFC
+      li Wi-Fi
+    p.
+      So, all of these makes sense to look at, and they are all described in the documentation.
+    ul
+      li 
+        a(href="https://developer.android.com/guide/topics/connectivity/bluetooth.html") Bluetooth
+      li 
+        a(href="https://developer.android.com/guide/topics/connectivity/nfc/index.html") NFC
+      li 
+        a(href="https://developer.android.com/guide/topics/connectivity/wifip2p.html") Wi-Fi Peer-to-Peer
+    p.
+      But, each one of these topics are so complicated to work with, that in these lecture notes I will only look at
+      Bluetooth.
+    h4 Working with Bluetooth
+    p.
+      On the surface, a lot of Bluetooth operations are easy to do. In order to access the BluetoothAdapter, simply add
+      the following lines to your code:
+    p
+      pre
+        code.Java.
+          // Fetch the bluetooth adapter
+          mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+          // Make sure that the device supports bluetooth
+          if (mBluetoothAdapter == null) {
+              return; // The device does not support bluetooth
+          }
+    p.
+      Now you have the bluetooth adapter! And with that, you can do something clever, like asking the user to turn on
+      his/her bluetooth with the following code:
+    p
+      pre
+        code.Java.
+          if (!mBluetoothAdapter.isEnabled()) {
+              Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+              startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+          }
+    p.
+      If we wanted to, we could use the adapter to get a list of paired devices:
+    p
+      pre
+        code.Java.
+          // Get a set of currently paired devices
+          Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+    p.
+      And we can start looking for new devices that are discoverable via Bluetooth like so:
+    p
+      pre
+        code.Java.
+          mBtAdapter.startDiscovery();
+    p.
+      And detect all the found devices, by listening for broadcasts:
+    p
+      pre
+        code.Java.
+          // Register for broadcasts when a device is discovered
+          IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+          registerReceiver(mReceiver, filter);
+    p.
+      So all these basic actions are really nice, simple and easy but what happens when you want to do something like,
+      connect to a device and send messages to it? Now, that's where it gets really difficult. In order to simplify some
+      of the hardest parts of it, I created a simplistic framework for you, based on the Android documentation code:
+      #[a(href="/notes/code-example-d8-fw") BluetoothService framework].
+    p.
+      The #[tt BluetoothService] class, is not an Android Service class, it's just a regular Java class. It has the 
+      methods #[tt start], #[tt stop], #[tt connect] and #[tt write].
+    p.
+      The #[tt start] method will start listening for connections to your device.
+    p.
+      The #[tt stop] method will stop listening for connections and shut down any existing connections.
+    p.
+      The #[tt connect] method will connect to some specific device.
+    p.
+      The #[tt write] method, will write some array of bytes to the currently connected device.
+    p.
+      So, if you have some device which you retrieved from the BluetoothAdapter, then you simply need to do something 
+      like the following code-snippet:
+    p
+      pre
+        code.Java.
+          // Fetch the device and make sure we have paired with it
+          BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+          pairDevice(device);
+
+          // Connect to the device
+          mBluetoothService.connect(device);
+    p.
+      And then we can write messages to that device with:
+    p
+      pre
+        code.Java.
+          mBluetoothService.write("Some message".getBytes());
+    p.
+      So when you are comfortable using this code, try and dive into the framework and figure out how it works. But 
+      don't look at the code untill you are comfortable with using the code.
+    
+  section.column.small-12
+    h2 Exercises
+    h4 Exercise 1
+    p.
+      Create an Activity, which asks the user to turn on bluetooth
+    h4 Exercise 2
+    p.
+      Create an Activity, which shows the list of paired devices
+    h4 Exercise 3
+    p.
+      Create an Activity, which shows a list of paired devices as well as all the devices you haven't paired with yet
+    h4 Exercise 4
+    p.
+      Create an Activity which allows you to communicate with another device through Bluetooth (either through static
+      messages or messages that you can write).
+    h4 Exercise 5 #[strong (very advanced)]
+    p.
+      Create an Activity that allows you to create a chat-room with multiple devices and communicate with all of them.
+      (Honestly, I'm not sure how I would approach this issue yet)
+    
+    h2 Solutions
+    ul
+      li
+        a(href="/notes/code-example-d8-ex1") Exercise 1
+      li
+        a(href="/notes/code-example-d8-ex2") Exercise 2
+      li
+        a(href="/notes/code-example-d8-ex3") Exercise 3
+      li
+        a(href="/notes/code-example-d8-ex4") Exercise 4
+      

@@ -1,0 +1,289 @@
+extends layout
+
+block content
+  h1 Solution for exercise 4 day 8
+  h2 MainActivity
+  pre
+    code.Java.
+      public class MainActivity extends AppCompatActivity {
+
+          private static final int REQUEST_ENABLE_BT = 0;
+          private static final int GET_BT_DEVICE = 1;
+          private BluetoothAdapter mBluetoothAdapter;
+          private ArrayAdapter<String> mPairedDevicesArrayAdapter;
+          private ArrayAdapter<String> mNewDevicesArrayAdapter;
+          private BluetoothService mBluetoothService;
+
+          @Override
+          protected void onCreate(Bundle savedInstanceState) {
+              super.onCreate(savedInstanceState);
+              setContentView(R.layout.activity_main);
+
+              // Initialize the service
+              mBluetoothService = new BluetoothService(this);
+
+              // Fetch the bluetooth adapter
+              mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+              // Make sure that the device supports bluetooth
+              if (mBluetoothAdapter == null) {
+                  return; // The device does not support bluetooth
+              }
+
+              // This is a bluetooth app, so check right away that bluetooth is enabled
+              if (!mBluetoothAdapter.isEnabled()) {
+                  Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                  startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+              }
+          }
+
+          @Override
+          protected void onDestroy() {
+              super.onDestroy();
+              mBluetoothAdapter.cancelDiscovery();
+          }
+
+          @Override
+          protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+              switch (requestCode) {
+                  case REQUEST_ENABLE_BT:
+                      Toast.makeText(this, "The user turned on Bluetooth!", Toast.LENGTH_SHORT).show();
+                      break;
+                  case GET_BT_DEVICE:
+                      if (resultCode == RESULT_OK) {
+                          // The user chose some device!
+                          String address = data.getExtras()
+                                  .getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
+
+                          // Fetch the device and make sure we have paired with it
+                          BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+                          pairDevice(device);
+
+                          // Connect to the device
+                          mBluetoothService.connect(device);
+                      }
+              }
+          }
+
+          // Legacy pairing method. In newer versions of Android (at least 3+) you could just do
+          // device.createBond();
+          private void pairDevice(BluetoothDevice device) {
+              try {
+                  Method method = device.getClass().getMethod("createBond", (Class[]) null);
+                  method.invoke(device, (Object[]) null);
+              } catch (Exception e) {
+                  e.printStackTrace();
+              }
+          }
+
+          public void onConnectClick(View view) {
+              // Show the device chooser activity if bluetooth has been enabled.
+              if (mBluetoothAdapter.isEnabled()) {
+                  Intent deviceListIntent = new Intent(this, DeviceListActivity.class);
+                  startActivityForResult(deviceListIntent, GET_BT_DEVICE);
+              }
+          }
+
+          public void onListenClick(View view) {
+              if (mBluetoothAdapter.getScanMode() !=
+                      BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+                  Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+                  discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+                  startActivity(discoverableIntent);
+              }
+          }
+
+          public void onSendMessageClick(View view) {
+              if (mBluetoothService != null) {
+                  mBluetoothService.write("Hello you!".getBytes());
+              }
+          }
+      }
+  h2 activity_main.xml
+  pre
+    code.XML.
+      &lt;?xml version="1.0" encoding="utf-8"?&gt;
+      &lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:paddingBottom="@dimen/activity_vertical_margin"
+          android:paddingLeft="@dimen/activity_horizontal_margin"
+          android:paddingRight="@dimen/activity_horizontal_margin"
+          android:paddingTop="@dimen/activity_vertical_margin"
+          android:orientation="vertical"
+          tools:context="com.example.lukas.bluetooth2.MainActivity"&gt;
+
+          &lt;Button
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:text="Connect"
+              android:onClick="onConnectClick"/&gt;
+          &lt;Button
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:text="Listen"
+              android:onClick="onListenClick"/&gt;
+          &lt;Button
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:text="Send message"
+              android:onClick="onSendMessageClick"/&gt;
+
+      &lt;/LinearLayout&gt;
+  h2 DeviceListActivity.Java
+  pre
+    code.Java.
+      public class DeviceListActivity extends Activity {
+
+          public static final String EXTRA_DEVICE_ADDRESS = "device.address";
+          private ArrayAdapter<String> mNewDevicesArrayAdapter;
+          private ArrayAdapter<String> mPairedDevicesArrayAdapter;
+          private BluetoothAdapter mBluetoothAdapter;
+
+          @Override
+          protected void onCreate(Bundle savedInstanceState) {
+              super.onCreate(savedInstanceState);
+              setContentView(R.layout.activity_device_list);
+
+              // Default to this result
+              setResult(RESULT_CANCELED);
+
+              // Fetch the bluetooth adapter
+              mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+              mNewDevicesArrayAdapter = new ArrayAdapter<>(this, R.layout.device_name);
+              ListView newDevicesListView = (ListView) findViewById(R.id.newDevicesList);
+              newDevicesListView.setAdapter(mNewDevicesArrayAdapter);
+              newDevicesListView.setOnItemClickListener(mDeviceClickListener);
+
+              mPairedDevicesArrayAdapter = new ArrayAdapter<>(this, R.layout.device_name);
+              ListView pairedDevicesListView = (ListView) findViewById(R.id.pairedDevicesList);
+              pairedDevicesListView.setAdapter(mPairedDevicesArrayAdapter);
+              pairedDevicesListView.setOnItemClickListener(mDeviceClickListener);
+
+              // Get a set of currently paired devices
+              Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+
+              // If there are paired devices, add each one to the ArrayAdapter
+              if (pairedDevices.size() > 0) {
+                  for (BluetoothDevice device : pairedDevices) {
+                      mPairedDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+                  }
+              }
+
+              // Register for broadcasts when a device is discovered
+              IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+              registerReceiver(mReceiver, filter);
+          }
+
+          @Override
+          protected void onDestroy() {
+              super.onDestroy();
+
+              // Make sure that we are not looking for devices when we don't need them
+              if (mBluetoothAdapter != null) {
+                  mBluetoothAdapter.cancelDiscovery();
+              }
+
+              // Make sure to unregister the broadcast receiver too
+              unregisterReceiver(mReceiver);
+          }
+
+          private AdapterView.OnItemClickListener mDeviceClickListener
+                  = new AdapterView.OnItemClickListener() {
+              public void onItemClick(AdapterView<?> av, View v, int arg2, long arg3) {
+                  // Cancel discovery because it's costly and we're about to connect
+                  mBluetoothAdapter.cancelDiscovery();
+
+                  // Get the device MAC address, which is the last 17 chars in the View
+                  String info = ((TextView) v).getText().toString();
+                  String address = info.substring(info.length() - 17);
+
+                  // Create the result Intent and include the MAC address
+                  Intent intent = new Intent();
+                  intent.putExtra(EXTRA_DEVICE_ADDRESS, address);
+
+                  // Set result and finish this Activity
+                  setResult(Activity.RESULT_OK, intent);
+                  finish();
+              }
+          };
+
+          public void onClickDeviceSearch(View view) {
+              mBluetoothAdapter.startDiscovery();
+              view.setVisibility(View.GONE);
+          }
+
+          // Create a BroadcastReceiver for ACTION_FOUND
+          private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+              public void onReceive(Context context, Intent intent) {
+                  String action = intent.getAction();
+
+                  switch (action) {
+                      case BluetoothDevice.ACTION_FOUND:
+                          // Get the BluetoothDevice object from the Intent
+                          BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                          // If it's already paired, skip it, because it's been listed already in the paired
+                          // devices
+                          if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
+                              mNewDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+                          }
+                          break;
+                  }
+              }
+          };
+      }
+  h2 activity_device_list.xml
+  pre
+    code.XML.
+      &lt;?xml version="1.0" encoding="utf-8"?&gt;
+      &lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:paddingBottom="@dimen/activity_vertical_margin"
+          android:paddingLeft="@dimen/activity_horizontal_margin"
+          android:paddingRight="@dimen/activity_horizontal_margin"
+          android:paddingTop="@dimen/activity_vertical_margin"
+          android:orientation="vertical"
+          tools:context="com.example.lukas.bluetooth2.MainActivity"&gt;
+
+          &lt;Button
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:text="Search for new devices"
+              android:onClick="onClickDeviceSearch"/&gt;
+
+          &lt;TextView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:text="Paired devices"
+              android:textSize="20sp"/&gt;
+          &lt;ListView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:id="@+id/pairedDevicesList"/&gt;
+
+          &lt;TextView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:text="New devices"
+              android:textSize="20sp"/&gt;
+          &lt;ListView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:id="@+id/newDevicesList"/&gt;
+      &lt;/LinearLayout&gt;
+  h2 device_name.xml
+  pre
+    code.XML.
+      &lt;?xml version="1.0" encoding="utf-8"?&gt;
+      &lt;TextView xmlns:android="http://schemas.android.com/apk/res/android"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:padding="6dp"
+          android:textSize="15sp" /&gt;
+      
+      
+      

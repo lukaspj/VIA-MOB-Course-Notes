@@ -1,0 +1,74 @@
+extends layout
+
+block content
+  h1 Solution for exercise 2 day 8
+  h2 MainActivity
+  pre
+    code.Java.
+      public class MainActivity extends AppCompatActivity {
+
+          private static final int REQUEST_ENABLE_BT = 0;
+          private BluetoothAdapter mBluetoothAdapter;
+          private ArrayAdapter<String> mPairedDevicesArrayAdapter;
+
+          @Override
+          protected void onCreate(Bundle savedInstanceState) {
+              super.onCreate(savedInstanceState);
+              setContentView(R.layout.activity_main);
+
+              // Fetch the bluetooth adapter
+              mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+              // Make sure that the device supports bluetooth
+              if (mBluetoothAdapter == null) {
+                  return; // The device does not support bluetooth
+              }
+
+              // This is a bluetooth app, so check right away that bluetooth is enabled
+              if (!mBluetoothAdapter.isEnabled()) {
+                  Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                  startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+              }
+
+              mPairedDevicesArrayAdapter = new ArrayAdapter<>(this, R.layout.device_name);
+              ListView pairedDevicesListView = (ListView) findViewById(R.id.pairedDevicesList);
+              pairedDevicesListView.setAdapter(mPairedDevicesArrayAdapter);
+
+              // Get a set of currently paired devices
+              Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+
+              // If there are paired devices, add each one to the ArrayAdapter
+              if (pairedDevices.size() > 0) {
+                  for (BluetoothDevice device : pairedDevices) {
+                      mPairedDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+                  }
+              }
+          }
+
+          @Override
+          protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+              switch (requestCode) {
+                  case REQUEST_ENABLE_BT:
+                      Toast.makeText(this, "The user turned on Bluetooth!", Toast.LENGTH_SHORT).show();
+              }
+          }
+      }
+  h2 activity_main.xml
+  pre
+    code.XML.
+      &lt;?xml version="1.0" encoding="utf-8"?&gt;
+      &lt;RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:paddingBottom="@dimen/activity_vertical_margin"
+          android:paddingLeft="@dimen/activity_horizontal_margin"
+          android:paddingRight="@dimen/activity_horizontal_margin"
+          android:paddingTop="@dimen/activity_vertical_margin"
+          tools:context="com.example.lukas.bluetooth2.MainActivity"&gt;
+
+          &lt;ListView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:id="@+id/pairedDevicesList"/&gt;
+      &lt;/RelativeLayout&gt;
+      
