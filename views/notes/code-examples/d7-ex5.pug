@@ -1,0 +1,238 @@
+extends layout
+
+block content
+  h1 Solution for exercise 1 day 7
+  h2 MainActivity
+  pre
+    code.Java.
+      public class MainActivity extends AppCompatActivity implements
+              GoogleApiClient.ConnectionCallbacks,
+              GoogleApiClient.OnConnectionFailedListener,
+              LocationListener,
+              ResultCallback&lt;Status&gt; {
+
+          private GoogleApiClient mGoogleApiClient;
+          private Location mLastLocation;
+          private TextView mLatitudeText;
+          private TextView mLongitudeText;
+          private LocationRequest mLocationRequest;
+          private boolean mRequestingLocationUpdates;
+      
+          private List<Geofence> mGeofenceList;
+          private Location mBeginLocation;
+
+          @Override
+          protected void onCreate(Bundle savedInstanceState) {
+              super.onCreate(savedInstanceState);
+              setContentView(R.layout.activity_main);
+
+              // If we haven't set the Google API, create it now.
+              if (mGoogleApiClient == null) {
+                  mGoogleApiClient = new GoogleApiClient.Builder(this)
+                          .addConnectionCallbacks(this)
+                          .addOnConnectionFailedListener(this)
+                          .addApi(LocationServices.API)
+                          .build();
+              }
+
+              mLatitudeText = (TextView) findViewById(R.id.latitudeText);
+              mLongitudeText = (TextView) findViewById(R.id.longitudeText);
+              createLocationRequest();
+          }
+
+          @Override
+          protected void onStart() {
+              super.onStart();
+              // Connect to the API
+              mGoogleApiClient.connect();
+          }
+
+          @Override
+          protected void onStop() {
+              super.onStop();
+              // Stop listening for updates
+              stopLocationUpdates();
+              // Disconnect from the API
+              mGoogleApiClient.disconnect();
+          }
+
+          @Override
+          protected void onResume() {
+              super.onResume();
+              // If we are connected to the Google API, but not listening for updates yet, we should begin listening 
+              // for updates.
+              if(mGoogleApiClient.isConnected() && !mRequestingLocationUpdates) {
+                  startLocationUpdates();
+              }
+          }
+
+          @Override
+          protected void onPause() {
+              super.onPause();
+              // Don't listen for updates when the Activity is not active
+              stopLocationUpdates();
+          }
+
+          private void startLocationUpdates() {
+              // Handle some permission stuff, this is auto-generated.
+              if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                  // TODO: Consider calling
+                  //    ActivityCompat#requestPermissions
+                  // here to request the missing permissions, and then overriding
+                  //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                  //                                          int[] grantResults)
+                  // to handle the case where the user grants the permission. See the documentation
+                  // for ActivityCompat#requestPermissions for more details.
+                  return;
+              }
+              // Start listening for updates
+              LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+              // Set the value to true, so we know that we are listening for updates
+              mRequestingLocationUpdates = true;
+          }
+
+          private void stopLocationUpdates() {
+              // Stop listening for location updates
+              LocationServices.FusedLocationApi.removeLocationUpdates(
+                      mGoogleApiClient, this);
+              // Set the value to false so we know if we have to start listening again
+              mRequestingLocationUpdates = false;
+          }
+
+          // Create our request object for locations
+          // This is basically an object that specifies our location update needs.
+          protected void createLocationRequest() {
+              mLocationRequest = new LocationRequest();
+              mLocationRequest.setInterval(1000);
+              mLocationRequest.setFastestInterval(500);
+              mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+          }
+
+          @Override
+          public void onConnected(@Nullable Bundle bundle) {
+              // If we are not listening for updates yet, we should probably begin doing that.
+              if(!mRequestingLocationUpdates) {
+                  startLocationUpdates();
+              }
+          }
+
+          @Override
+          public void onConnectionSuspended(int i) {
+              // Handle connection suspended
+          }
+
+          @Override
+          public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+              // Handle failed connection
+          }
+
+          @Override
+          public void onLocationChanged(Location location) {
+              // Retrieve the new location
+              mLastLocation = location;
+              // Update the TextViews
+              mLatitudeText.setText(String.valueOf(mLastLocation.getLatitude()));
+              mLongitudeText.setText(String.valueOf(mLastLocation.getLongitude()));
+              if (mBeginLocation == null) {
+                  mBeginLocation = mLastLocation;
+
+                  mGeofenceList = new ArrayList<>();
+                  mGeofenceList.add(new Geofence.Builder()
+                            .setRequestId("FirstGeoFence")
+                            .setCircularRegion(
+                                    mBeginLocation.getLatitude(),
+                                    mBeginLocation.getLongitude(),
+                                    20)
+                            .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
+                                    Geofence.GEOFENCE_TRANSITION_EXIT)
+                            .build());
+                  if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                      // TODO: Consider calling
+                      //    ActivityCompat#requestPermissions
+                      // here to request the missing permissions, and then overriding
+                      //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                      //                                          int[] grantResults)
+                      // to handle the case where the user grants the permission. See the documentation
+                      // for ActivityCompat#requestPermissions for more details.
+                      return;
+                  }
+                  LocationServices.GeofencingApi.addGeofences(
+                          mGoogleApiClient,
+                          getGeofencingRequest(),
+                          getGeofencePendingIntent()
+                  ).setResultCallback(this);
+          }
+          
+          private GeofencingRequest getGeofencingRequest() {
+              GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
+              builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+              builder.addGeofences(mGeofenceList);
+              return builder.build();
+          }
+           
+          private PendingIntent getGeofencePendingIntent() {
+              Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
+              // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
+              // calling addGeofences() and removeGeofences().
+              return PendingIntent.getService(this, 0, intent, PendingIntent.
+                          FLAG_UPDATE_CURRENT);
+          }
+      }
+  h2 activity_main.xml
+  pre
+    code.XML.
+      &lt;?xml version="1.0" encoding="utf-8"?&gt;
+      &lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:paddingBottom="@dimen/activity_vertical_margin"
+          android:paddingLeft="@dimen/activity_horizontal_margin"
+          android:paddingRight="@dimen/activity_horizontal_margin"
+          android:paddingTop="@dimen/activity_vertical_margin"
+          android:orientation="vertical"
+          tools:context="com.example.lukas.mapsfragment.MainActivity"&gt;
+
+          &lt;TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:id="@+id/latitudeText" /&gt;
+          &lt;TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:id="@+id/longitudeText" /&gt;
+      &lt;/LinearLayout&gt;
+  h2 GeofenceTransitionsIntentService.Java
+  pre
+    code.Java.
+      public class GeofenceTransitionsIntentService extends IntentService {
+          public GeofenceTransitionsIntentService() {
+              super("GeofenceTransitionsIntentService");
+          }
+
+          @Override
+          protected void onHandleIntent(Intent intent) {
+              GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
+              if (geofencingEvent.hasError()) {
+                  Log.e("Tag", "Some geofence error");
+                  return;
+              }
+
+              // Get the transition type.
+              int geofenceTransition = geofencingEvent.getGeofenceTransition();
+
+              // Test that the reported transition was of interest.
+              if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
+                      geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+
+                  if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+                      Intent mainIntent = new Intent(this, PopupActivity.class);
+                      startActivity(mainIntent);
+                  }
+              }
+          }
+      }
+      
+      
+      

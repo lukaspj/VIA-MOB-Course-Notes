@@ -1,0 +1,50 @@
+extends layout
+
+block content
+  section
+    h2 Remote Storage
+    i Day 8
+  section
+    h2 Agenda
+    ul
+      li Remote Storage
+      li Firebase Database
+      li Firebase Storage
+  section
+    h2 Remote Storage
+    ul
+      li You can access the data on any device, in any app
+      li You get insight into the information about the user (evil masterplan unfolds)
+      li If the user re-installs the app, he would not lose any of the remotely-stored data
+      li No access to the data if no internet
+      li Slow data access
+      li Need 3rd party library
+  section
+    section
+      h2 Firebase Database
+      ul
+        li Firebase is owned by Google
+        li The documentation is good
+        li Provides a lot of free services
+        li Has a lot of different services
+        li Eases the usage of Remote Storage and Databases
+    section
+      h2 Getting access to Firebase
+      ul
+        li Login to the Firebase website
+        li Add Firebase to your project
+    section
+      h2 Storing data on Firebase
+      ul
+        li Make the database public so we can avoid authentication
+        li Add the dependency to #[tt build.gradle]
+      pre
+        code.Groovy.
+          compile 'com.google.firebase:firebase-database:9.4.0'
+    section
+      h2 Reading and writing data from the website
+  section
+    section
+      h2 Firebase Storage
+      p.
+        Similar to Firebase database, just for files

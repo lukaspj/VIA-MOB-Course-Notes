@@ -1,0 +1,164 @@
+extends layout
+
+block header
+  h2 Course page for: #[strong Mobile Applications]
+
+block content
+  section.column.small-12
+    h2 Lecture notes: day 9
+    h4 Remote storage
+    p.
+      Storing something remotely has a lot of benefits, first of all you can access the data on any device.
+      As an evil app-developer you get access to all the users' data. If the user re-installs the app, he would not
+      lose the remotely-stored data. Furthermore you can utilize the same data across different apps and platforms.
+    p.
+      Storing something remotely, needs somewhere to store it on. That is, it extends beyond the device that the user
+      is holding in his hand so we need a system somewhere, that can store data for us. Therefore, there aren't any
+      built-in functionality for remote storage. We need to look at 3rd parties, which brings us to Firebase.
+    h4 Firebase
+    p.
+      Firebase is a company that is now owned by Google. It provides a wide range of services to a lot of different 
+      platforms, like iOS, Web, C++, #[em Android] etc. The primary two services that we will look at using Firebase are:
+    ul
+      li Remote Storage (store files)
+      li Remote Database (store data)
+    h4 Getting access to Firebase
+    p.
+      In order to use Firebase, you need to go to the #[a(href="https://firebase.google.com/") Firebase website] and
+      login with your Google account. Then just follow #[a(href="https://firebase.google.com/docs/android/setup") this guide]
+      in order to set up your project for Firebase integration.
+    
+    h4 Storing data on Firebase
+    p.
+      We do not want to deal with authentication right now, so go to the #[a(href="https://console.firebase.google.com/") Firebase Console]
+      and select your project. Then, in the left bar select "Database". Now just under the "Realtime Database" title,
+      there should be a tab called "RULES", enter that and enter the following into the textbox:
+    p
+      pre
+        code.JSON.
+          {
+            "rules": {
+              ".read": true,
+              ".write": true
+            }
+          }
+    p.
+      Now press "publish", and then your database is publicly available!
+    p.
+      Furthermore, add the following dependency for the #[tt build.gradle] file:
+    p
+      pre
+        code.Groovy.
+          compile 'com.google.firebase:firebase-database:9.4.0'
+    p.
+      Having the database public, try creating a new empty project with an empty main activity and add the following
+      code to the #[tt onCreate] method of the activity:
+    p
+      pre
+        code.Java.
+          // Fetch the FirebaseDatabase connection
+          FirebaseDatabase database = FirebaseDatabase.getInstance();
+          
+          // Enable DEBUG information in the log
+          database.setLogLevel(Logger.Level.DEBUG);
+          
+          // Get a reference to the information
+          final DatabaseReference appLaunchCount = database.getReference("launchCount");
+
+          // Fetch data from the reference once
+          appLaunchCount.addListenerForSingleValueEvent(new ValueEventListener() {
+              @Override
+              public void onDataChange(DataSnapshot dataSnapshot) {
+                  // Fetch the value from the snapshot of the data, as an Integer
+                  Integer value = dataSnapshot.getValue(Integer.class);
+
+                  // If the value is null, then the data wasn't defined in the database, so default to 1.
+                  int newValue;
+                  if (value == null) {
+                      newValue = 1;
+                  } else {
+                      newValue = value + 1;
+                  }
+
+                  // Upload the new value to the database
+                  appLaunchCount.setValue(newValue);
+                  // Toast the amount of times the app has been opened
+                  Toast.makeText(MainActivity.this, "App launched: " + newValue + " times", Toast.LENGTH_SHORT).show();
+              }
+
+              @Override
+              public void onCancelled(DatabaseError databaseError) {
+                  // Not implemented
+              }
+          });
+    p.
+      And then, whenever the user enters the app, the "launchCount" value in the database will be incremented by 1.
+      You can read more about using the Firebase Database #[a(href="https://firebase.google.com/docs/database/android/start/") here].
+    
+    h4 Downloading files from Firebase
+    p.
+      Firebase also provides Remote Storage, which you can think of as a sort of Google Drive for apps. It's a remote
+      folder where you can upload files to. Similarly to what we did with the Remote Storage, we do not want to handle
+      authentication stuff. So head to the #[a(href="https://console.firebase.google.com/") Firebase Console]
+      and select your project. Then, in the left bar select "Storage". Now just under the "Storage" title,
+      there should be a tab called "RULES", enter that and enter the following into the textbox:
+    p
+      pre
+        code.JSON.
+          service firebase.storage {
+            match /b/lukas-firebase-example.appspot.com/o {
+              match /{allPaths=**} {
+                allow read, write;
+              }
+            }
+          }
+    p.
+      Furthermore, add the following dependency for the #[tt build.gradle] file:
+    p
+      pre
+        code.Groovy.
+          compile 'com.google.firebase:firebase-storage:9.4.0'
+    p.
+      Now, in this lecture we only want to look at file downloads. So head back to the "Storage" page and make sure you
+      are in the "FILES" tab. Here you want to simply upload an image to the storage.
+    p.
+      Now that you have uploaded the image, you can add the following piece of code to your #[tt onCreate] method:
+    p
+      pre
+        code.Java.
+          // Find the ImageView, defined in the layout
+          final ImageView imageView = (ImageView)findViewById(R.id.dbImageView);
+
+          // Get the connection to the Firebase Storage
+          FirebaseStorage storage = FirebaseStorage.getInstance();
+
+          // Create a reference to the Storage index folder
+          StorageReference storageRef = storage.getReferenceFromUrl("gs://lukas-firebase-example.appspot.com/");
+
+          // Create a reference to a file inside the storageRef folder
+          StorageReference imageRef = storageRef.child("catscience.png");
+          
+          final long MB = 1024*1024;
+          // Attempt to download the file, and specify the maximum file size to be 2 megabytes
+          imageRef.getBytes(2*MB).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+              @Override
+              public void onSuccess(byte[] bytes) {
+                  // Create a Bitmap from the downloaded bytes
+                  Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                  // Display the Bitmap in the imageView.
+                  imageView.setImageBitmap(bitmap);
+              }
+          }).addOnFailureListener(new OnFailureListener() {
+              @Override
+              public void onFailure(@NonNull Exception e) {
+                  // Do something to handle a failure
+              }
+          });
+    p.
+      And that is all the essentials for Remote Storage and Data. You can read more information about Remote Storage
+      #[a(href="https://firebase.google.com/docs/storage/android/start") here].
+  section.column.small-12
+    h2 Exercises
+    p.
+      Look at the code-examples in the lecture notes.. And read the lecture notes.
+      

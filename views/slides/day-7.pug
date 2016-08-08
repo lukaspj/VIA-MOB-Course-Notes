@@ -1,0 +1,252 @@
+extends layout
+
+block content
+  section
+    h2 Maps and GPS
+    i Day 7
+  section
+    h2 Agenda
+    ul
+      li API Key
+      li Adding libraries
+      li Maps
+      li Getting the user's last position
+      li Getting the user's current position
+      li Geofencing
+  section
+    h2 API Key
+    ul
+      li Google Maps is not an integrated service, it is a library that you can pay for.
+      li Getting an API Key is free
+      li Get it #[a(href="https://developers.google.com/maps/documentation/android-api/signup") here]
+  section
+    h2 Adding libraries
+    ul
+      li Download it through the SDK Manager
+      li Add it in the gradle file
+    pre
+      code.Groovy.
+        compile 'com.google.android.gms:play-services-maps:9.2.1'
+  section
+    section
+      h2 Maps
+      pre
+        code.XML.
+          &lt;fragment
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:id="@+id/map"
+              android:name="com.google.android.gms.maps.MapFragment" /&gt;
+    section
+      h2 Drawing stuff on the map
+      pre
+        code.Java.
+          @Override
+          protected void onCreate(Bundle savedInstanceState) {
+              super.onCreate(savedInstanceState);
+              setContentView(R.layout.activity_main);
+
+              // Find the Fragment
+              MapFragment mapFragment = (MapFragment) getFragmentManager()
+                      .findFragmentById(R.id.map);
+              // Fetch the map asynchronously
+              mapFragment.getMapAsync(this);
+          }
+    section
+      h2 Drawing stuff on the map
+      pre
+        code.Java.
+          @Override
+          public void onMapReady(GoogleMap googleMap) {
+              // Add a marker
+              googleMap.addMarker(new MarkerOptions()
+                      .position(new LatLng(0, 0))
+                      .title("Marker"));
+              // Instantiates a new CircleOptions object and defines the center and radius
+              CircleOptions circleOptions = new CircleOptions()
+                      .center(new LatLng(37.4, -122.1)) // This is about Palo Alto
+                      .radius(10000); // In meters
+
+              // Get back the mutable Circle
+              Circle circle = googleMap.addCircle(circleOptions);
+          }
+  section
+    section
+      h2 Getting the user's position
+      ul
+        li Need the 'play-services-location' library
+        li Create the Google API Client
+        li Connect to the Google API Client
+    section
+      h4 Getting the user's position
+      pre
+        code.Java.
+          if (mGoogleApiClient == null) {
+              mGoogleApiClient = new GoogleApiClient.Builder(this)
+                      .addConnectionCallbacks(this)
+                      .addOnConnectionFailedListener(this)
+                      .addApi(LocationServices.API)
+                      .build();
+          }
+    section
+      h4 Getting the user's position
+      pre
+        code.Java.
+          @Override
+          protected void onStart() {
+              super.onStart();
+              mGoogleApiClient.connect();
+          }
+
+          @Override
+          protected void onStop() {
+              super.onStop();
+              mGoogleApiClient.disconnect();
+          }
+    section
+      h4 Getting the user's position
+      pre
+        code.Java.
+          @Override
+          public void onConnected(@Nullable Bundle bundle) {
+              mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+              if (mLastLocation != null) {
+                  // Do something with the location
+              }
+          }
+  section
+    section
+      h2 Getting the user's current position
+      p Implement LocationListener interface
+      pre
+        code.Java.
+          @Override
+          public void onLocationChanged(Location location) {
+              mLastLocation = location;
+              // Do something with the location
+          }
+    section
+      h4 Getting the user's current position
+      pre
+        code.Java.
+          protected void createLocationRequest() {
+              mLocationRequest = new LocationRequest();
+              mLocationRequest.setInterval(1000); // How often would we like a position update
+              mLocationRequest.setFastestInterval(500); // What is our maximum capability
+              mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY); // The accuracy
+          }
+    section
+      h4 Getting the user's current position
+      pre
+        code.Java.
+          private void startLocationUpdates() {
+              LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+              mRequestingLocationUpdates = true;
+          }
+
+          private void stopLocationUpdates() {
+              LocationServices.FusedLocationApi.removeLocationUpdates(
+                      mGoogleApiClient, this);
+              mRequestingLocationUpdates = false;
+          }
+    section
+      h4 Getting the user's current position
+      pre
+        code.Java.
+          @Override
+          public void onConnected(@Nullable Bundle bundle) {
+              if(!mRequestingLocationUpdates) {
+                  startLocationUpdates();
+              }
+          }
+          
+          @Override
+          protected void onResume() {
+              super.onResume();
+              if(mGoogleApiClient.isConnected() && !mRequestingLocationUpdates) {
+                  startLocationUpdates();
+              }
+          }
+
+          @Override
+          protected void onPause() {
+              super.onPause();
+              stopLocationUpdates();
+          }
+  section
+    section
+      h2 Geofences
+      ul
+        li Define some area that triggers an event when the user enters or leaves it
+        li Can be of any form, a circular or polygonal area
+        li Fairly complicated
+    section
+      h4 Geofences - Create the Geofence
+      pre
+        code.Java.
+          mGeofenceList = new ArrayList&lt;&gt;();
+          mGeofenceList.add(new Geofence.Builder()
+                  .setRequestId("FirstGeoFence")
+                  .setCircularRegion(
+                          mBeginLocation.getLatitude(),
+                          mBeginLocation.getLongitude(),
+                          20) // 20 meters radius
+                  .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                  .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
+                          Geofence.GEOFENCE_TRANSITION_EXIT)
+                  .build());
+    section
+      h4 Geofences - Building the request
+      pre
+        code.Java.
+          private GeofencingRequest getGeofencingRequest() {
+              GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
+              builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+              builder.addGeofences(mGeofenceList);
+              return builder.build();
+          }
+    section
+      h4 Geofences - Building the PendingIntent
+      pre
+        code.Java.
+          private PendingIntent getGeofencePendingIntent() {
+              Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
+              // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
+              // calling addGeofences() and removeGeofences().
+              return PendingIntent.getService(this, 0, intent, PendingIntent.
+                          FLAG_UPDATE_CURRENT);
+          }
+    section
+      h4 Geofences - Adding the Geofences
+      pre
+        code.Java.
+          LocationServices.GeofencingApi.addGeofences(
+                  mGoogleApiClient,
+                  getGeofencingRequest(),
+                  getGeofencePendingIntent()
+          ).setResultCallback(this);
+    section
+      h4 Geofences - The IntentService
+      pre
+        code.Java.
+          @Override
+          protected void onHandleIntent(Intent intent) {
+              GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
+              if (geofencingEvent.hasError()) {
+                  Log.e("tag", "Some error occured");
+                  return;
+              }
+
+              // Get the transition type.
+              int geofenceTransition = geofencingEvent.getGeofenceTransition();
+
+              // Test that the reported transition was of interest.
+              if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
+                      geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+
+                  if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+                      Intent exitIntent = new Intent(this, PopupActivity.class);
+                      startActivity(exitIntent);
+                  }
+              }
+          }
