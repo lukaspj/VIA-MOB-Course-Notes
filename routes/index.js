@@ -9,4 +9,8 @@ router.get('/', function(req, res, next) {
     res.render('index', { title: 'Course page for MOB' });
 });
 
+router.get('/apps', (req, res, next) => {
+  res.render('notes/final-projects', {title: 'Final Projects'});
+});
+
 module.exports = router;
